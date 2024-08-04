@@ -1,0 +1,8 @@
+[package]
+name = "reb-gb"
+version = "0.1.0"
+edition = "2021"
+authors = ["Rob Herley <robherley13@gmail.com>"]
+
+[dependencies]
+thiserror = "1.0.63"
