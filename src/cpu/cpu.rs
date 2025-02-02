@@ -1,4 +1,4 @@
-use super::registers::Registers;
+use super::registers::{Flags, Registers};
 use crate::cartridge::Cartridge;
 use crate::mmu::Memory;
 
@@ -80,9 +80,15 @@ impl CPU {
             // INC (BC) | ----
             0x03 => unimplemented!(),
             // INC (B) | Z0H-
-            0x04 => unimplemented!(),
+            0x04 => {
+                self.registers.b = self.inc8(self.registers.b);
+                4
+            }
             // DEC (B) | Z1H-
-            0x05 => unimplemented!(),
+            0x05 => {
+                self.registers.b = self.dec8(self.registers.b);
+                4
+            }
             // LD (B), (n8) | ----
             0x06 => unimplemented!(),
             // RLCA  | 000C
@@ -96,9 +102,15 @@ impl CPU {
             // DEC (BC) | ----
             0x0B => unimplemented!(),
             // INC (C) | Z0H-
-            0x0C => unimplemented!(),
+            0x0C => {
+                self.registers.c = self.inc8(self.registers.c);
+                4
+            }
             // DEC (C) | Z1H-
-            0x0D => unimplemented!(),
+            0x0D => {
+                self.registers.c = self.dec8(self.registers.c);
+                4
+            }
             // LD (C), (n8) | ----
             0x0E => unimplemented!(),
             // RRCA  | 000C
@@ -116,9 +128,15 @@ impl CPU {
             // INC (DE) | ----
             0x13 => unimplemented!(),
             // INC (D) | Z0H-
-            0x14 => unimplemented!(),
+            0x14 => {
+                self.registers.c = self.inc8(self.registers.d);
+                4
+            }
             // DEC (D) | Z1H-
-            0x15 => unimplemented!(),
+            0x15 => {
+                self.registers.d = self.dec8(self.registers.d);
+                4
+            }
             // LD (D), (n8) | ----
             0x16 => unimplemented!(),
             // RLA  | 000C
@@ -132,9 +150,15 @@ impl CPU {
             // DEC (DE) | ----
             0x1B => unimplemented!(),
             // INC (E) | Z0H-
-            0x1C => unimplemented!(),
+            0x1C => {
+                self.registers.e = self.inc8(self.registers.e);
+                4
+            }
             // DEC (E) | Z1H-
-            0x1D => unimplemented!(),
+            0x1D => {
+                self.registers.e = self.dec8(self.registers.e);
+                4
+            }
             // LD (E), (n8) | ----
             0x1E => unimplemented!(),
             // RRA  | 000C
@@ -152,9 +176,15 @@ impl CPU {
             // INC (HL) | ----
             0x23 => unimplemented!(),
             // INC (H) | Z0H-
-            0x24 => unimplemented!(),
+            0x24 => {
+                self.registers.h = self.inc8(self.registers.h);
+                4
+            }
             // DEC (H) | Z1H-
-            0x25 => unimplemented!(),
+            0x25 => {
+                self.registers.h = self.dec8(self.registers.h);
+                4
+            }
             // LD (H), (n8) | ----
             0x26 => unimplemented!(),
             // DAA  | Z-0C
@@ -168,9 +198,15 @@ impl CPU {
             // DEC (HL) | ----
             0x2B => unimplemented!(),
             // INC (L) | Z0H-
-            0x2C => unimplemented!(),
+            0x2C => {
+                self.registers.l = self.inc8(self.registers.l);
+                4
+            }
             // DEC (L) | Z1H-
-            0x2D => unimplemented!(),
+            0x2D => {
+                self.registers.l = self.dec8(self.registers.l);
+                4
+            }
             // LD (L), (n8) | ----
             0x2E => unimplemented!(),
             // CPL  | -11-
@@ -203,9 +239,15 @@ impl CPU {
             // DEC (SP) | ----
             0x3B => unimplemented!(),
             // INC (A) | Z0H-
-            0x3C => unimplemented!(),
+            0x3C => {
+                self.registers.a = self.inc8(self.registers.a);
+                4
+            }
             // DEC (A) | Z1H-
-            0x3D => unimplemented!(),
+            0x3D => {
+                self.registers.a = self.dec8(self.registers.a);
+                4
+            }
             // LD (A), (n8) | ----
             0x3E => unimplemented!(),
             // CCF  | -00C
@@ -598,6 +640,24 @@ impl CPU {
             // RST ($38) | ----
             0xFF => unimplemented!(),
         }
+    }
+
+    // 8-bit increment
+    fn inc8(&mut self, value: u8) -> u8 {
+        let result = value.wrapping_add(1);
+        self.registers.set_flag(Flags::Z, result == 0);
+        self.registers.set_flag(Flags::N, false);
+        self.registers.set_flag(Flags::H, (result & 0x0F) == 0x0F);
+        result
+    }
+
+    // 8-bit decrement
+    fn dec8(&mut self, value: u8) -> u8 {
+        let result = value.wrapping_sub(1);
+        self.registers.set_flag(Flags::Z, result == 0);
+        self.registers.set_flag(Flags::N, true);
+        self.registers.set_flag(Flags::H, (value & 0x0F) == 0);
+        result
     }
 
     pub fn exec_cb(&mut self) -> usize {
