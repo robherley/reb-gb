@@ -1,6 +1,5 @@
 use crate::cartridge::Cartridge;
-use crate::cpu::Model;
-use std::vec;
+use crate::cpu::{CPUError, Model};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Flags {
@@ -15,16 +14,15 @@ pub enum Flags {
 }
 
 #[derive(PartialEq, Eq)]
+/// CPU Registers can be accessed as single 16 bit OR separate 8 bit.
+///
+/// |16|Hi|Lo|
+/// |--|--|--|
+/// |AF|A |* |
+/// |BC|B |C |
+/// |DE|D |E |
+/// |HL|H |L |
 pub struct Registers {
-    /*
-        Registers can be accessed as single 16 bit OR separate 8 bit.
-
-        |16|Hi|Lo|
-        |AF|A |* |
-        |BC|B |C |
-        |DE|D |E |
-        |HL|H |L |
-    */
     pub a: u8,
     pub f: u8,
     pub b: u8,
@@ -67,11 +65,7 @@ impl std::fmt::Debug for Registers {
 }
 
 impl Registers {
-    pub fn new(model: Model, cart: &Cartridge) -> Registers {
-        if model != Model::DMG {
-            panic!("model not supported: {:?}", model);
-        }
-
+    pub fn new(model: Model, cartridge: &Cartridge) -> Result<Registers, CPUError> {
         // https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
         let mut registers = Registers {
             a: 0x01,
@@ -91,15 +85,15 @@ impl Registers {
         match model {
             Model::DMG | Model::MGB => {
                 // for DMG and MGB, the carry and half-carry flags are set if the checksum != 0
-                if cart.header_checksum() != 0x00 {
+                if cartridge.header_checksum() != 0x00 {
                     registers.set_flag(Flags::H, true);
                     registers.set_flag(Flags::C, true);
                 }
             }
-            _ => {}
+            _ => return Err(CPUError::CPUNotSupported(model)),
         }
 
-        registers
+        Ok(registers)
     }
 
     pub fn af(&self) -> u16 {
@@ -165,7 +159,7 @@ mod tests {
 
         assert_eq!(
             registers,
-            Registers {
+            Ok(Registers {
                 a: 0x01,
                 f: 0xB0,
                 b: 0x00,
@@ -176,7 +170,7 @@ mod tests {
                 l: 0x4D,
                 pc: 0x0100,
                 sp: 0xFFFE,
-            }
+            })
         );
     }
 }

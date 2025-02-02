@@ -1,4 +1,4 @@
-use crate::metadata::Licensee;
+use crate::{memory, metadata::Licensee};
 use std::{convert::TryFrom, num::Wrapping};
 use thiserror::Error;
 
@@ -103,17 +103,6 @@ pub struct Cartridge {
 impl Cartridge {
     pub fn new(rom: Vec<u8>) -> Self {
         Cartridge { rom }
-    }
-
-    pub fn read(&self, address: u16) -> u8 {
-        self.rom[address as usize]
-    }
-
-    pub fn write(&mut self, address: u16, value: u8) {
-        panic!(
-            "not implemented: write to cartridge: address: {:#06x}, value: {:#04x}",
-            address, value
-        );
     }
 
     // First address the boot rom jumps to after checking nintendo logo. Usually a NOP then JP $0150
@@ -241,6 +230,19 @@ impl Cartridge {
             .0;
 
         checksum == self.global_checksum()
+    }
+}
+
+impl memory::ReadWriter for Cartridge {
+    fn read(&self, address: u16) -> u8 {
+        self.rom[address as usize]
+    }
+
+    fn write(&mut self, address: u16, value: u8) {
+        unreachable!(
+            "write to cartridge: address: {:#06x}, value: {:#04x}",
+            address, value
+        );
     }
 }
 
