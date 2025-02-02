@@ -51,7 +51,6 @@ impl CPU {
         self.mmu.read8(pc)
     }
 
-    #[allow(dead_code)]
     fn fetch16(&mut self) -> u16 {
         let pc = self.registers.pc;
         self.registers.pc += 2;
@@ -64,9 +63,8 @@ impl CPU {
 
     /// Executes the next instruction and returns the number of t-cycles (system clock ticks) it took.
     /// https://gbdev.io/gb-opcodes/optables/
-    pub fn exec(&mut self) -> usize {
-        let op = self.fetch8();
-        match op {
+    fn exec(&mut self) -> usize {
+        match self.fetch8() {
             // NOP  | ----
             0x00 => 4,
             // LD (BC), (n16) | ----
@@ -660,7 +658,8 @@ impl CPU {
         result
     }
 
-    pub fn exec_cb(&mut self) -> usize {
+    fn exec_cb(&mut self) -> usize {
+        let _ = self.fetch8();
         unimplemented!();
     }
 }

@@ -3,13 +3,13 @@ use crate::cartridge::Cartridge;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Flags {
-    // Bit 7: Zero Flag (Z) - Set if the result of an operation is zero
+    /// Bit 7: Zero Flag (Z) - Set if the result of an operation is zero
     Z = 0b1000_0000,
-    // Bit 6: Subtract Flag (N) - Set if the last operation was a subtraction
+    /// Bit 6: Subtract Flag (N) - Set if the last operation was a subtraction
     N = 0b0100_0000,
-    // Bit 5: Half Carry Flag (H) - Set if the last operation produced a carry from bit 3 to bit 4
+    /// Bit 5: Half Carry Flag (H) - Set if the last operation produced a carry from bit 3 to bit 4
     H = 0b0010_0000,
-    // Bit 4: Carry Flag (C) - Set if the last operation produced a carry from bit 7
+    /// Bit 4: Carry Flag (C) - Set if the last operation produced a carry from bit 7
     C = 0b0001_0000,
 }
 
