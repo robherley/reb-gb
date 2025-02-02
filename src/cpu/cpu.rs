@@ -1,7 +1,8 @@
 use crate::cartridge::Cartridge;
-use crate::memory::Memory;
-use crate::registers::Registers;
+use crate::mmu::Memory;
 use thiserror::Error;
+
+use super::registers::Registers;
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum CPUError {
@@ -64,6 +65,8 @@ impl CPU {
     }
 
     // Executes the next instruction and returns the number of m-cycles it took.
+    // https://gbdev.io/pandocs/CPU_Instruction_Set.html
+    // https://gbdev.io/gb-opcodes/optables/octal
     pub fn exec(&mut self) -> usize {
         let op = self.fetch8();
         match op {

@@ -1,6 +1,8 @@
-use crate::{memory, metadata::Licensee};
+use crate::mmu;
 use std::{convert::TryFrom, num::Wrapping};
 use thiserror::Error;
+
+use super::metadata::Licensee;
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum CartridgeError {
@@ -233,7 +235,7 @@ impl Cartridge {
     }
 }
 
-impl memory::ReadWriter for Cartridge {
+impl mmu::RW for Cartridge {
     fn read(&self, address: u16) -> u8 {
         self.rom[address as usize]
     }
@@ -250,7 +252,7 @@ impl memory::ReadWriter for Cartridge {
 mod tests {
     use super::*;
 
-    const CPU_INSTRS_ROM: &[u8; 65536] = include_bytes!("../test/fixtures/cpu_instrs.gb");
+    const CPU_INSTRS_ROM: &[u8; 65536] = include_bytes!("../../test/fixtures/cpu_instrs.gb");
 
     #[test]
     fn test_attributes() {

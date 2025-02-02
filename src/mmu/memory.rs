@@ -1,6 +1,6 @@
 use crate::cartridge::Cartridge;
 
-pub trait ReadWriter {
+pub trait RW {
     fn read(&self, address: u16) -> u8;
     fn write(&mut self, address: u16, value: u8);
 }
@@ -14,7 +14,7 @@ impl Memory {
         Memory { cartridge }
     }
 
-    pub fn map(&mut self, address: u16) -> &mut dyn ReadWriter {
+    pub fn map(&mut self, address: u16) -> &mut dyn RW {
         // https://gbdev.io/pandocs/Memory_Map.html
         match address {
             // 0x0000 - 0x3FFF : ROM Bank 0

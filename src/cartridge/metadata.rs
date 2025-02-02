@@ -1,4 +1,4 @@
-use crate::cartridge::CartridgeError;
+use super::cartridge::CartridgeError;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Licensee {

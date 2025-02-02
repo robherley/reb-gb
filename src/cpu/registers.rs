@@ -1,5 +1,6 @@
 use crate::cartridge::Cartridge;
-use crate::cpu::{CPUError, Model};
+
+use super::cpu::{CPUError, Model};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Flags {
@@ -150,7 +151,7 @@ impl Registers {
 mod tests {
     use super::*;
 
-    const CPU_INSTRS_ROM: &[u8; 65536] = include_bytes!("../test/fixtures/cpu_instrs.gb");
+    const CPU_INSTRS_ROM: &[u8; 65536] = include_bytes!("../../test/fixtures/cpu_instrs.gb");
 
     #[test]
     fn test_init_dmg() {
