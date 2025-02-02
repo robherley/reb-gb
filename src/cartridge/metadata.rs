@@ -1,4 +1,4 @@
-use super::cartridge::CartridgeError;
+use super::cartridge::Error;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Licensee {
@@ -8,7 +8,7 @@ pub enum Licensee {
 }
 
 impl TryFrom<u8> for Licensee {
-    type Error = CartridgeError;
+    type Error = Error;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
@@ -159,13 +159,13 @@ impl TryFrom<u8> for Licensee {
             0xF0 => Ok(Licensee::Old("A Wave")),
             0xF3 => Ok(Licensee::Old("Extreme Entertainment")),
             0xFF => Ok(Licensee::Old("LJN")),
-            v => Err(CartridgeError::InvalidOldLicenseeCode(v)),
+            v => Err(Error::InvalidOldLicenseeCode(v)),
         }
     }
 }
 
 impl TryFrom<(char, char)> for Licensee {
-    type Error = CartridgeError;
+    type Error = Error;
 
     fn try_from(value: (char, char)) -> Result<Self, Self::Error> {
         match value {
@@ -230,7 +230,7 @@ impl TryFrom<(char, char)> for Licensee {
             ('9', '7') => Ok(Licensee::New("Kaneko")),
             ('9', '9') => Ok(Licensee::New("Pack in soft")),
             ('A', '4') => Ok(Licensee::New("Konami (Yu-Gi-Oh!)")),
-            (a, b) => Err(CartridgeError::InvalidNewLicenseeCode(a, b)),
+            (a, b) => Err(Error::InvalidNewLicenseeCode(a, b)),
         }
     }
 }

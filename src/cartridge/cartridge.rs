@@ -1,11 +1,10 @@
 use crate::mmu;
 use std::{convert::TryFrom, num::Wrapping};
-use thiserror::Error;
 
 use super::metadata::Licensee;
 
-#[derive(Debug, Error, PartialEq, Eq)]
-pub enum CartridgeError {
+#[derive(thiserror::Error, Debug, PartialEq, Eq)]
+pub enum Error {
     #[error("invalid cartridge kind: {0:#04x}")]
     InvalidCartridgeKind(u8),
     #[error("invalid old licensee code: {0:#04x}")]
@@ -47,7 +46,7 @@ pub enum Kind {
 }
 
 impl TryFrom<u8> for Kind {
-    type Error = CartridgeError;
+    type Error = Error;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
@@ -79,7 +78,7 @@ impl TryFrom<u8> for Kind {
             0xFD => Ok(Kind::BandaiTama5),
             0xFE => Ok(Kind::Huc3),
             0xFF => Ok(Kind::Huc1RamBattery),
-            v => Err(CartridgeError::InvalidCartridgeKind(v)),
+            v => Err(Error::InvalidCartridgeKind(v)),
         }
     }
 }
@@ -159,12 +158,12 @@ impl Cartridge {
     }
 
     // This byte specifies the type of cartridge, can be used to determine memory bank controller.
-    pub fn kind(&self) -> Result<Kind, CartridgeError> {
+    pub fn kind(&self) -> Result<Kind, Error> {
         Kind::try_from(self.rom[0x147])
     }
 
     // Indicates the game's publisher
-    pub fn licensee(&self) -> Result<Licensee, CartridgeError> {
+    pub fn licensee(&self) -> Result<Licensee, Error> {
         match self.rom[0x14B] {
             0x33 => Licensee::try_from((self.rom[0x144] as char, self.rom[0x145] as char)),
             v => Licensee::try_from(v),
@@ -279,7 +278,7 @@ mod tests {
         let cart = Cartridge::new(vec![0xEE; 65536]);
         assert_eq!(
             cart.kind().unwrap_err(),
-            CartridgeError::InvalidCartridgeKind(0xEE),
+            Error::InvalidCartridgeKind(0xEE),
             "invalid type"
         );
     }
@@ -308,7 +307,7 @@ mod tests {
         rom[0x14B] = 0xF4;
         assert_eq!(
             Cartridge::new(rom).licensee().unwrap_err(),
-            CartridgeError::InvalidOldLicenseeCode(0xF4),
+            Error::InvalidOldLicenseeCode(0xF4),
             "invalid old licensee"
         );
 
@@ -328,7 +327,7 @@ mod tests {
         rom[0x145] = 'Z' as u8;
         assert_eq!(
             Cartridge::new(rom).licensee().unwrap_err(),
-            CartridgeError::InvalidNewLicenseeCode('Z', 'Z'),
+            Error::InvalidNewLicenseeCode('Z', 'Z'),
             "invalid new licensee"
         );
     }

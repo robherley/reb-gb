@@ -1,11 +1,9 @@
+use super::registers::Registers;
 use crate::cartridge::Cartridge;
 use crate::mmu::Memory;
-use thiserror::Error;
 
-use super::registers::Registers;
-
-#[derive(Debug, Error, PartialEq, Eq)]
-pub enum CPUError {
+#[derive(thiserror::Error, Debug, PartialEq, Eq)]
+pub enum Error {
     #[error("cpu not supported: {0:?}")]
     CPUNotSupported(Model),
 }
@@ -33,7 +31,7 @@ pub struct CPU {
 }
 
 impl CPU {
-    pub fn new(model: Model, cartridge: Cartridge) -> Result<CPU, CPUError> {
+    pub fn new(model: Model, cartridge: Cartridge) -> Result<CPU, Error> {
         Ok(CPU {
             registers: Registers::new(model, &cartridge)?,
             mmu: Memory::new(cartridge),

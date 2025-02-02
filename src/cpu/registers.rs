@@ -1,6 +1,5 @@
+use super::cpu::{Error, Model};
 use crate::cartridge::Cartridge;
-
-use super::cpu::{CPUError, Model};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Flags {
@@ -66,7 +65,7 @@ impl std::fmt::Debug for Registers {
 }
 
 impl Registers {
-    pub fn new(model: Model, cartridge: &Cartridge) -> Result<Registers, CPUError> {
+    pub fn new(model: Model, cartridge: &Cartridge) -> Result<Registers, Error> {
         // https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
         let mut registers = Registers {
             a: 0x01,
@@ -91,7 +90,7 @@ impl Registers {
                     registers.set_flag(Flags::C, true);
                 }
             }
-            _ => return Err(CPUError::CPUNotSupported(model)),
+            _ => return Err(Error::CPUNotSupported(model)),
         }
 
         Ok(registers)
