@@ -61,4 +61,11 @@ impl Memory {
         let high = self.read8(address + 1) as u16;
         (high << 8) | low
     }
+
+    pub fn write16(&mut self, address: u16, value: u16) {
+        let low = value as u8;
+        let high = (value >> 8) as u8;
+        self.write8(address, low);
+        self.write8(address + 1, high);
+    }
 }
