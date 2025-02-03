@@ -247,6 +247,14 @@ impl mmu::RW for Cartridge {
     }
 }
 
+impl Default for Cartridge {
+    fn default() -> Self {
+        Cartridge {
+            rom: vec![0; 65536],
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

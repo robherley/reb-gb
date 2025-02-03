@@ -780,7 +780,7 @@ impl CPU {
         flags!(self.registers,
           Z: result == 0,
           N: true,
-          H: (value & 0x0F) == 0x0F
+          H: (value & 0x0F) == 0
         );
         result
     }
@@ -817,5 +817,234 @@ impl CPU {
     // 8-bit subtract with carry (LHS is always register A)
     fn sbc8(&mut self, value: u8) {
         self.sub8(value.wrapping_add(self.registers.flag(C) as u8));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    macro_rules! assert_flags {
+      ($cpu:expr, $($flag:ident: $value:expr),*) => {
+        $(
+          assert_eq!($cpu.registers.flag($flag), $value, concat!("Flag ", stringify!($flag), " is incorrect"));
+        )*
+      };
+    }
+
+    fn build_cpu() -> CPU {
+        CPU::new(Model::DMG, Cartridge::default()).unwrap()
+    }
+
+    #[test]
+    fn test_inc8() {
+        let mut cpu = build_cpu();
+        let result = cpu.inc8(0x00);
+        assert_eq!(result, 0x01);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false
+        );
+    }
+
+    #[test]
+    fn test_inc8_carry() {
+        let mut cpu = build_cpu();
+        let result = cpu.inc8(0x0F);
+        assert_eq!(result, 0x10);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: true
+        );
+    }
+
+    #[test]
+    fn test_inc8_wrap() {
+        let mut cpu = build_cpu();
+        let result = cpu.inc8(0xFF);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: true
+        );
+    }
+
+    #[test]
+    fn test_dec8() {
+        let mut cpu = build_cpu();
+        let result = cpu.dec8(0x02);
+        assert_eq!(result, 0x01);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: false
+        );
+    }
+
+    #[test]
+    fn test_dec8_carry() {
+        let mut cpu = build_cpu();
+        let result = cpu.dec8(0x10);
+        assert_eq!(result, 0x0F);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: true
+        );
+    }
+
+    #[test]
+    fn test_dec8_zero() {
+        let mut cpu = build_cpu();
+        let result = cpu.dec8(0x01);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: true,
+          H: false
+        );
+    }
+
+    #[test]
+    fn test_dec8_wrap() {
+        let mut cpu = build_cpu();
+        let result = cpu.dec8(0x00);
+        assert_eq!(result, 0xFF);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: true
+        );
+    }
+
+    #[test]
+    fn test_add8() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x01;
+        cpu.add8(0x01);
+        assert_eq!(cpu.registers.a, 0x02);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_add8_half_carry() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x0F;
+        cpu.add8(0x01);
+        assert_eq!(cpu.registers.a, 0x10);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: true,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_add8_carry() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0xFF;
+        cpu.add8(0x01);
+        assert_eq!(cpu.registers.a, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: true,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_add8_wrap() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0xFF;
+        cpu.add8(0x01);
+        assert_eq!(cpu.registers.a, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: true,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_adc8() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x01;
+        cpu.registers.set_flag(C, true);
+        cpu.adc8(0x01);
+        assert_eq!(cpu.registers.a, 0x03);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_sub8() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x01;
+        cpu.sub8(0x01);
+        assert_eq!(cpu.registers.a, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: true,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_sub8_half_borrow() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x10;
+        cpu.sub8(0x01);
+        assert_eq!(cpu.registers.a, 0x0F);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: true,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_sub8_borrow() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x00;
+        cpu.sub8(0x01);
+        assert_eq!(cpu.registers.a, 0xFF);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: true,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_sbc8() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x02;
+        cpu.registers.set_flag(C, true);
+        cpu.sbc8(0x01);
+        assert_eq!(cpu.registers.a, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: true,
+          H: false,
+          C: false
+        );
     }
 }
