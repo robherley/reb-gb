@@ -838,7 +838,11 @@ impl CPU {
             // ILLEGAL(0xFD) | ----
             0xFD => unimplemented!(),
             // CP (A), (n8) | Z1HC
-            0xFE => unimplemented!(),
+            0xFE => {
+                let value = self.fetch8();
+                self.cp8(value);
+                8
+            }
             // RST ($38) | ----
             0xFF => unimplemented!(),
         }
@@ -940,6 +944,14 @@ impl CPU {
           C: false
         );
         self.registers.a = result;
+    }
+
+    // 8-bit compare (LHS is always register A)
+    // From CPU manual: "This is basically an A - n subtraction instruction but the results are thrown away."
+    fn cp8(&mut self, value: u8) {
+        let a = self.registers.a;
+        self.sub8(value);
+        self.registers.a = a;
     }
 }
 
@@ -1252,6 +1264,48 @@ mod tests {
           N: false,
           H: false,
           C: false
+        );
+    }
+
+    #[test]
+    fn test_cp8() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x01;
+        cpu.cp8(0x01);
+        assert_eq!(cpu.registers.a, 0x01);
+        assert_flags!(cpu,
+          Z: true,
+          N: true,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_cp8_half_borrow() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x10;
+        cpu.cp8(0x01);
+        assert_eq!(cpu.registers.a, 0x10);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: true,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_cp8_borrow() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x00;
+        cpu.cp8(0x01);
+        assert_eq!(cpu.registers.a, 0x00);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: true,
+          C: true
         );
     }
 }
