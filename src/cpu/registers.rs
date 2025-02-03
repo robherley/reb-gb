@@ -1,6 +1,16 @@
 use super::cpu::{Error, Model};
 use crate::cartridge::Cartridge;
 
+/// Macro to set one or flags on the registers
+#[macro_export]
+macro_rules! flags {
+  ($regs:expr, $( $flag:ident : $expr:expr ),* $(,)?) => {
+      $(
+          $regs.set_flag($flag, $expr);
+      )*
+  };
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum Flags {
     /// Bit 7: Zero Flag (Z) - Set if the result of an operation is zero
@@ -41,7 +51,7 @@ impl std::fmt::Debug for Registers {
         let flags: String = vec![Flags::Z, Flags::N, Flags::H, Flags::C]
             .iter()
             .map(|flag| {
-                if self.get_flag(*flag) {
+                if self.flag(*flag) {
                     format!("{:?}", flag)
                 } else {
                     "-".to_string()
@@ -133,7 +143,7 @@ impl Registers {
         self.l = value as u8;
     }
 
-    pub fn get_flag(&self, flag: Flags) -> bool {
+    pub fn flag(&self, flag: Flags) -> bool {
         self.f & flag as u8 != 0
     }
 
