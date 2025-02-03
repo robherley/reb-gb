@@ -818,7 +818,11 @@ impl CPU {
             // PUSH (AF) | ----
             0xF5 => unimplemented!(),
             // OR (A), (n8) | Z000
-            0xF6 => unimplemented!(),
+            0xF6 => {
+                let value = self.fetch8();
+                self.or8(value);
+                8
+            }
             // RST ($30) | ----
             0xF7 => unimplemented!(),
             // LD (HL), (SP), (e8) | 00HC
