@@ -465,37 +465,87 @@ impl CPU {
                 4
             }
             // SUB (A), (B) | Z1HC
-            0x90 => unimplemented!(),
+            0x90 => {
+                self.sub8(self.registers.b);
+                4
+            }
             // SUB (A), (C) | Z1HC
-            0x91 => unimplemented!(),
+            0x91 => {
+                self.sub8(self.registers.c);
+                4
+            }
             // SUB (A), (D) | Z1HC
-            0x92 => unimplemented!(),
+            0x92 => {
+                self.sub8(self.registers.d);
+                4
+            }
             // SUB (A), (E) | Z1HC
-            0x93 => unimplemented!(),
+            0x93 => {
+                self.sub8(self.registers.e);
+                4
+            }
             // SUB (A), (H) | Z1HC
-            0x94 => unimplemented!(),
+            0x94 => {
+                self.sub8(self.registers.h);
+                4
+            }
             // SUB (A), (L) | Z1HC
-            0x95 => unimplemented!(),
+            0x95 => {
+                self.sub8(self.registers.l);
+                4
+            }
             // SUB (A), HL | Z1HC
-            0x96 => unimplemented!(),
+            0x96 => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.sub8(value);
+                8
+            }
             // SUB (A), (A) | 1100
-            0x97 => unimplemented!(),
+            0x97 => {
+                self.sub8(self.registers.a);
+                4
+            }
             // SBC (A), (B) | Z1HC
-            0x98 => unimplemented!(),
+            0x98 => {
+                self.sbc8(self.registers.b);
+                4
+            }
             // SBC (A), (C) | Z1HC
-            0x99 => unimplemented!(),
+            0x99 => {
+                self.sbc8(self.registers.c);
+                4
+            }
             // SBC (A), (D) | Z1HC
-            0x9A => unimplemented!(),
+            0x9A => {
+                self.sbc8(self.registers.d);
+                4
+            }
             // SBC (A), (E) | Z1HC
-            0x9B => unimplemented!(),
+            0x9B => {
+                self.sbc8(self.registers.e);
+                4
+            }
             // SBC (A), (H) | Z1HC
-            0x9C => unimplemented!(),
+            0x9C => {
+                self.sbc8(self.registers.h);
+                4
+            }
             // SBC (A), (L) | Z1HC
-            0x9D => unimplemented!(),
+            0x9D => {
+                self.sbc8(self.registers.l);
+                4
+            }
             // SBC (A), HL | Z1HC
-            0x9E => unimplemented!(),
+            0x9E => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.sbc8(value);
+                8
+            }
             // SBC (A), (A) | Z1H-
-            0x9F => unimplemented!(),
+            0x9F => {
+                self.sbc8(self.registers.a);
+                4
+            }
             // AND (A), (B) | Z010
             0xA0 => unimplemented!(),
             // AND (A), (C) | Z010
@@ -613,7 +663,11 @@ impl CPU {
             // PUSH (DE) | ----
             0xD5 => unimplemented!(),
             // SUB (A), (n8) | Z1HC
-            0xD6 => unimplemented!(),
+            0xD6 => {
+                let value = self.fetch8();
+                self.sub8(value);
+                8
+            }
             // RST ($10) | ----
             0xD7 => unimplemented!(),
             // RET (C) | ----
@@ -629,7 +683,11 @@ impl CPU {
             // ILLEGAL(0xDD) | ----
             0xDD => unimplemented!(),
             // SBC (A), (n8) | Z1HC
-            0xDE => unimplemented!(),
+            0xDE => {
+                let value = self.fetch8();
+                self.sbc8(value);
+                8
+            }
             // RST ($18) | ----
             0xDF => unimplemented!(),
             // LDH a8, (A) | ----
@@ -742,5 +800,22 @@ impl CPU {
     // 8-bit add with carry (LHS is always register A)
     fn adc8(&mut self, value: u8) {
         self.add8(value.wrapping_add(self.registers.flag(C) as u8));
+    }
+
+    // 8-bit subtract (LHS is always register A)
+    fn sub8(&mut self, value: u8) {
+        let result = self.registers.a.wrapping_sub(value);
+        flags!(self.registers,
+          Z: result == 0,
+          N: true,
+          H: (self.registers.a & 0x0F) < (value & 0x0F),
+          C: (self.registers.a as u16) < (value as u16)
+        );
+        self.registers.a = result;
+    }
+
+    // 8-bit subtract with carry (LHS is always register A)
+    fn sbc8(&mut self, value: u8) {
+        self.sub8(value.wrapping_add(self.registers.flag(C) as u8));
     }
 }
