@@ -7,6 +7,8 @@ use crate::mmu::Memory;
 pub enum Error {
     #[error("cpu not supported: {0:?}")]
     CPUNotSupported(Model),
+    #[error("illegal instruction: {0:#04X}")]
+    IllegalInstruction(u8),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -59,13 +61,14 @@ impl CPU {
     }
 
     fn step(&mut self) -> usize {
-        self.exec()
+        // TODO(robherley): bubble up illegal instruction errors
+        self.exec().unwrap()
     }
 
     /// Executes the next instruction and returns the number of t-cycles (system clock ticks) it took.
     /// https://gbdev.io/gb-opcodes/optables/
-    fn exec(&mut self) -> usize {
-        match self.fetch8() {
+    fn exec(&mut self) -> Result<usize, Error> {
+        let cycles = match self.fetch8() {
             // NOP  | ----
             0x00 => 4,
             // LD (BC), (n16) | ----
@@ -732,7 +735,7 @@ impl CPU {
             // JP (NC), (a16) | ----
             0xD2 => unimplemented!(),
             // ILLEGAL(0xD3) | ----
-            0xD3 => unimplemented!(),
+            0xD3 => return Err(Error::IllegalInstruction(0xD3)),
             // CALL (NC), (a16) | ----
             0xD4 => unimplemented!(),
             // PUSH (DE) | ----
@@ -752,11 +755,11 @@ impl CPU {
             // JP (C), (a16) | ----
             0xDA => unimplemented!(),
             // ILLEGAL(0xDB) | ----
-            0xDB => unimplemented!(),
+            0xDB => return Err(Error::IllegalInstruction(0xDB)),
             // CALL (C), (a16) | ----
             0xDC => unimplemented!(),
             // ILLEGAL(0xDD) | ----
-            0xDD => unimplemented!(),
+            0xDD => return Err(Error::IllegalInstruction(0xDD)),
             // SBC (A), (n8) | Z1HC
             0xDE => {
                 let value = self.fetch8();
@@ -772,9 +775,9 @@ impl CPU {
             // LD C, (A) | ----
             0xE2 => unimplemented!(),
             // ILLEGAL(0xE3) | ----
-            0xE3 => unimplemented!(),
+            0xE3 => return Err(Error::IllegalInstruction(0xE3)),
             // ILLEGAL(0xE4) | ----
-            0xE4 => unimplemented!(),
+            0xE4 => return Err(Error::IllegalInstruction(0xE4)),
             // PUSH (HL) | ----
             0xE5 => unimplemented!(),
             // AND (A), (n8) | Z010
@@ -792,11 +795,11 @@ impl CPU {
             // LD a16, (A) | ----
             0xEA => unimplemented!(),
             // ILLEGAL(0xEB) | ----
-            0xEB => unimplemented!(),
+            0xEB => return Err(Error::IllegalInstruction(0xEB)),
             // ILLEGAL(0xEC) | ----
-            0xEC => unimplemented!(),
+            0xEC => return Err(Error::IllegalInstruction(0xEC)),
             // ILLEGAL(0xED) | ----
-            0xED => unimplemented!(),
+            0xED => return Err(Error::IllegalInstruction(0xED)),
             // XOR (A), (n8) | Z000
             0xEE => {
                 let value = self.fetch8();
@@ -814,7 +817,7 @@ impl CPU {
             // DI  | ----
             0xF3 => unimplemented!(),
             // ILLEGAL(0xF4) | ----
-            0xF4 => unimplemented!(),
+            0xF4 => return Err(Error::IllegalInstruction(0xF4)),
             // PUSH (AF) | ----
             0xF5 => unimplemented!(),
             // OR (A), (n8) | Z000
@@ -834,9 +837,9 @@ impl CPU {
             // EI  | ----
             0xFB => unimplemented!(),
             // ILLEGAL(0xFC) | ----
-            0xFC => unimplemented!(),
+            0xFC => return Err(Error::IllegalInstruction(0xFC)),
             // ILLEGAL(0xFD) | ----
-            0xFD => unimplemented!(),
+            0xFD => return Err(Error::IllegalInstruction(0xFD)),
             // CP (A), (n8) | Z1HC
             0xFE => {
                 let value = self.fetch8();
@@ -845,7 +848,9 @@ impl CPU {
             }
             // RST ($38) | ----
             0xFF => unimplemented!(),
-        }
+        };
+
+        Ok(cycles)
     }
 
     fn exec_cb(&mut self) -> usize {
