@@ -547,53 +547,128 @@ impl CPU {
                 4
             }
             // AND (A), (B) | Z010
-            0xA0 => unimplemented!(),
+            0xA0 => {
+                self.and8(self.registers.b);
+                4
+            }
             // AND (A), (C) | Z010
-            0xA1 => unimplemented!(),
+            0xA1 => {
+                self.and8(self.registers.c);
+                4
+            }
             // AND (A), (D) | Z010
-            0xA2 => unimplemented!(),
+            0xA2 => {
+                self.and8(self.registers.d);
+                4
+            }
             // AND (A), (E) | Z010
-            0xA3 => unimplemented!(),
+            0xA3 => {
+                self.and8(self.registers.e);
+                4
+            }
             // AND (A), (H) | Z010
-            0xA4 => unimplemented!(),
+            0xA4 => {
+                self.and8(self.registers.h);
+                4
+            }
             // AND (A), (L) | Z010
-            0xA5 => unimplemented!(),
+            0xA5 => {
+                self.and8(self.registers.l);
+                4
+            }
             // AND (A), HL | Z010
-            0xA6 => unimplemented!(),
+            0xA6 => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.and8(value);
+                8
+            }
             // AND (A), (A) | Z010
-            0xA7 => unimplemented!(),
+            0xA7 => {
+                self.and8(self.registers.a);
+                4
+            }
             // XOR (A), (B) | Z000
-            0xA8 => unimplemented!(),
+            0xA8 => {
+                self.xor8(self.registers.b);
+                4
+            }
             // XOR (A), (C) | Z000
-            0xA9 => unimplemented!(),
+            0xA9 => {
+                self.xor8(self.registers.c);
+                4
+            }
             // XOR (A), (D) | Z000
-            0xAA => unimplemented!(),
+            0xAA => {
+                self.xor8(self.registers.d);
+                4
+            }
             // XOR (A), (E) | Z000
-            0xAB => unimplemented!(),
+            0xAB => {
+                self.xor8(self.registers.e);
+                4
+            }
             // XOR (A), (H) | Z000
-            0xAC => unimplemented!(),
+            0xAC => {
+                self.xor8(self.registers.h);
+                4
+            }
             // XOR (A), (L) | Z000
-            0xAD => unimplemented!(),
+            0xAD => {
+                self.xor8(self.registers.l);
+                4
+            }
             // XOR (A), HL | Z000
-            0xAE => unimplemented!(),
+            0xAE => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.xor8(value);
+                8
+            }
             // XOR (A), (A) | 1000
-            0xAF => unimplemented!(),
+            0xAF => {
+                self.xor8(self.registers.a);
+                4
+            }
             // OR (A), (B) | Z000
-            0xB0 => unimplemented!(),
+            0xB0 => {
+                self.or8(self.registers.b);
+                4
+            }
             // OR (A), (C) | Z000
-            0xB1 => unimplemented!(),
+            0xB1 => {
+                self.or8(self.registers.c);
+                4
+            }
             // OR (A), (D) | Z000
-            0xB2 => unimplemented!(),
+            0xB2 => {
+                self.or8(self.registers.d);
+                4
+            }
             // OR (A), (E) | Z000
-            0xB3 => unimplemented!(),
+            0xB3 => {
+                self.or8(self.registers.e);
+                4
+            }
             // OR (A), (H) | Z000
-            0xB4 => unimplemented!(),
+            0xB4 => {
+                self.or8(self.registers.h);
+                4
+            }
             // OR (A), (L) | Z000
-            0xB5 => unimplemented!(),
+            0xB5 => {
+                self.or8(self.registers.l);
+                4
+            }
             // OR (A), HL | Z000
-            0xB6 => unimplemented!(),
+            0xB6 => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.or8(value);
+                8
+            }
             // OR (A), (A) | Z000
-            0xB7 => unimplemented!(),
+            0xB7 => {
+                self.or8(self.registers.a);
+                4
+            }
             // CP (A), (B) | Z1HC
             0xB8 => unimplemented!(),
             // CP (A), (C) | Z1HC
@@ -703,7 +778,11 @@ impl CPU {
             // PUSH (HL) | ----
             0xE5 => unimplemented!(),
             // AND (A), (n8) | Z010
-            0xE6 => unimplemented!(),
+            0xE6 => {
+                let value = self.fetch8();
+                self.and8(value);
+                8
+            }
             // RST ($20) | ----
             0xE7 => unimplemented!(),
             // ADD (SP), (e8) | 00HC
@@ -719,7 +798,11 @@ impl CPU {
             // ILLEGAL(0xED) | ----
             0xED => unimplemented!(),
             // XOR (A), (n8) | Z000
-            0xEE => unimplemented!(),
+            0xEE => {
+                let value = self.fetch8();
+                self.xor8(value);
+                8
+            }
             // RST ($28) | ----
             0xEF => unimplemented!(),
             // LDH (A), a8 | ----
@@ -817,6 +900,42 @@ impl CPU {
     // 8-bit subtract with carry (LHS is always register A)
     fn sbc8(&mut self, value: u8) {
         self.sub8(value.wrapping_add(self.registers.flag(C) as u8));
+    }
+
+    // 8-bit AND (LHS is always register A)
+    fn and8(&mut self, value: u8) {
+        let result = self.registers.a & value;
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: true,
+          C: false
+        );
+        self.registers.a = result;
+    }
+
+    // 8-bit XOR (LHS is always register A)
+    fn xor8(&mut self, value: u8) {
+        let result = self.registers.a ^ value;
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: false
+        );
+        self.registers.a = result;
+    }
+
+    // 8-bit OR (LHS is always register A)
+    fn or8(&mut self, value: u8) {
+        let result = self.registers.a | value;
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: false
+        );
+        self.registers.a = result;
     }
 }
 
@@ -1043,6 +1162,90 @@ mod tests {
         assert_flags!(cpu,
           Z: true,
           N: true,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_and8() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x0F;
+        cpu.and8(0x0A);
+        assert_eq!(cpu.registers.a, 0x0A);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: true,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_and8_zero() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x0F;
+        cpu.and8(0xF0);
+        assert_eq!(cpu.registers.a, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: true,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_xor8() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0xF0;
+        cpu.xor8(0x0F);
+        assert_eq!(cpu.registers.a, 0xFF);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_xor8_zero() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0xF0;
+        cpu.xor8(0xF0);
+        assert_eq!(cpu.registers.a, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_or8() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0xFF;
+        cpu.or8(0xF0);
+        assert_eq!(cpu.registers.a, 0xFF);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_or8_zero() {
+        let mut cpu = build_cpu();
+        cpu.registers.a = 0x00;
+        cpu.or8(0x00);
+        assert_eq!(cpu.registers.a, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
           H: false,
           C: false
         );
