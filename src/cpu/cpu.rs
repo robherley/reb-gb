@@ -92,7 +92,10 @@ impl CPU {
                 4
             }
             // LD (B), (n8) | ----
-            0x06 => unimplemented!(),
+            0x06 => {
+                self.registers.b = self.fetch8();
+                8
+            }
             // RLCA  | 000C
             0x07 => unimplemented!(),
             // LD a16, (SP) | ----
@@ -100,7 +103,10 @@ impl CPU {
             // ADD (HL), (BC) | -0HC
             0x09 => unimplemented!(),
             // LD (A), BC | ----
-            0x0A => unimplemented!(),
+            0x0A => {
+                self.registers.a = self.mmu.read8(self.registers.bc());
+                4
+            }
             // DEC (BC) | ----
             0x0B => unimplemented!(),
             // INC (C) | Z0H-
@@ -114,7 +120,10 @@ impl CPU {
                 4
             }
             // LD (C), (n8) | ----
-            0x0E => unimplemented!(),
+            0x0E => {
+                self.registers.c = self.fetch8();
+                8
+            }
             // RRCA  | 000C
             0x0F => unimplemented!(),
             // STOP (n8) | ----
@@ -140,7 +149,10 @@ impl CPU {
                 4
             }
             // LD (D), (n8) | ----
-            0x16 => unimplemented!(),
+            0x16 => {
+                self.registers.d = self.fetch8();
+                8
+            }
             // RLA  | 000C
             0x17 => unimplemented!(),
             // JR (e8) | ----
@@ -148,7 +160,10 @@ impl CPU {
             // ADD (HL), (DE) | -0HC
             0x19 => unimplemented!(),
             // LD (A), DE | ----
-            0x1A => unimplemented!(),
+            0x1A => {
+                self.registers.a = self.mmu.read8(self.registers.de());
+                4
+            }
             // DEC (DE) | ----
             0x1B => unimplemented!(),
             // INC (E) | Z0H-
@@ -162,7 +177,10 @@ impl CPU {
                 4
             }
             // LD (E), (n8) | ----
-            0x1E => unimplemented!(),
+            0x1E => {
+                self.registers.e = self.fetch8();
+                8
+            }
             // RRA  | 000C
             0x1F => unimplemented!(),
             // JR (NZ), (e8) | ----
@@ -170,7 +188,12 @@ impl CPU {
             // LD (HL), (n16) | ----
             0x21 => unimplemented!(),
             // LD HL, (A) | ----
-            0x22 => unimplemented!(),
+            // Put A into memory address HL. Increment HL. Same as: LD (HL),A - INC HL
+            0x22 => {
+                self.mmu.write8(self.registers.hl(), self.registers.a);
+                self.registers.set_hl(self.registers.hl().wrapping_add(1));
+                8
+            }
             // INC (HL) | ----
             0x23 => {
                 let value = self.registers.hl().wrapping_add(1);
@@ -188,7 +211,10 @@ impl CPU {
                 4
             }
             // LD (H), (n8) | ----
-            0x26 => unimplemented!(),
+            0x26 => {
+                self.registers.h = self.fetch8();
+                8
+            }
             // DAA  | Z-0C
             0x27 => unimplemented!(),
             // JR (Z), (e8) | ----
@@ -196,7 +222,12 @@ impl CPU {
             // ADD (HL), (HL) | -0HC
             0x29 => unimplemented!(),
             // LD (A), HL | ----
-            0x2A => unimplemented!(),
+            // Put value at address HL into A. Increment HL. Same as: LD A,(HL) - INC HL
+            0x2A => {
+                self.registers.a = self.mmu.read8(self.registers.hl());
+                self.registers.set_hl(self.registers.hl().wrapping_add(1));
+                8
+            }
             // DEC (HL) | ----
             0x2B => unimplemented!(),
             // INC (L) | Z0H-
@@ -210,7 +241,10 @@ impl CPU {
                 4
             }
             // LD (L), (n8) | ----
-            0x2E => unimplemented!(),
+            0x2E => {
+                self.registers.l = self.fetch8();
+                8
+            }
             // CPL  | -11-
             0x2F => unimplemented!(),
             // JR (NC), (e8) | ----
@@ -221,7 +255,12 @@ impl CPU {
                 12
             }
             // LD HL, (A) | ----
-            0x32 => unimplemented!(),
+            // Put A into memory address HL. Decrement HL. Same as: LD (HL),A - DEC HL
+            0x32 => {
+                self.mmu.write8(self.registers.hl(), self.registers.a);
+                self.registers.set_hl(self.registers.hl().wrapping_sub(1));
+                8
+            }
             // INC (SP) | ----
             0x33 => unimplemented!(),
             // INC HL | Z0H-
@@ -229,7 +268,11 @@ impl CPU {
             // DEC HL | Z1H-
             0x35 => unimplemented!(),
             // LD HL, (n8) | ----
-            0x36 => unimplemented!(),
+            0x36 => {
+                let value = self.fetch8();
+                self.mmu.write8(self.registers.hl(), value);
+                12
+            }
             // SCF  | -001
             0x37 => unimplemented!(),
             // JR (C), (e8) | ----
@@ -237,7 +280,12 @@ impl CPU {
             // ADD (HL), (SP) | -0HC
             0x39 => unimplemented!(),
             // LD (A), HL | ----
-            0x3A => unimplemented!(),
+            // Put value at address HL into A. Decrement HL. Same as: LD A,(HL) - DEC HL
+            0x3A => {
+                self.registers.a = self.mmu.read8(self.registers.hl());
+                self.registers.set_hl(self.registers.hl().wrapping_sub(1));
+                8
+            }
             // DEC (SP) | ----
             0x3B => unimplemented!(),
             // INC (A) | Z0H-
@@ -251,140 +299,314 @@ impl CPU {
                 4
             }
             // LD (A), (n8) | ----
-            0x3E => unimplemented!(),
+            0x3E => {
+                self.registers.a = self.fetch8();
+                8
+            }
             // CCF  | -00C
             0x3F => unimplemented!(),
             // LD (B), (B) | ----
-            0x40 => unimplemented!(),
+            0x40 => 4,
             // LD (B), (C) | ----
-            0x41 => unimplemented!(),
+            0x41 => {
+                self.registers.b = self.registers.c;
+                4
+            }
             // LD (B), (D) | ----
-            0x42 => unimplemented!(),
+            0x42 => {
+                self.registers.b = self.registers.d;
+                4
+            }
             // LD (B), (E) | ----
-            0x43 => unimplemented!(),
+            0x43 => {
+                self.registers.b = self.registers.e;
+                4
+            }
             // LD (B), (H) | ----
-            0x44 => unimplemented!(),
+            0x44 => {
+                self.registers.b = self.registers.h;
+                4
+            }
             // LD (B), (L) | ----
-            0x45 => unimplemented!(),
+            0x45 => {
+                self.registers.b = self.registers.l;
+                4
+            }
             // LD (B), HL | ----
-            0x46 => unimplemented!(),
+            0x46 => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.registers.b = value;
+                8
+            }
             // LD (B), (A) | ----
-            0x47 => unimplemented!(),
+            0x47 => {
+                self.registers.b = self.registers.a;
+                4
+            }
             // LD (C), (B) | ----
-            0x48 => unimplemented!(),
+            0x48 => {
+                self.registers.c = self.registers.b;
+                4
+            }
             // LD (C), (C) | ----
-            0x49 => unimplemented!(),
+            0x49 => 4,
             // LD (C), (D) | ----
-            0x4A => unimplemented!(),
+            0x4A => {
+                self.registers.c = self.registers.d;
+                4
+            }
             // LD (C), (E) | ----
-            0x4B => unimplemented!(),
+            0x4B => {
+                self.registers.c = self.registers.e;
+                4
+            }
             // LD (C), (H) | ----
-            0x4C => unimplemented!(),
+            0x4C => {
+                self.registers.c = self.registers.h;
+                4
+            }
             // LD (C), (L) | ----
-            0x4D => unimplemented!(),
+            0x4D => {
+                self.registers.c = self.registers.l;
+                4
+            }
             // LD (C), HL | ----
-            0x4E => unimplemented!(),
+            0x4E => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.registers.c = value;
+                8
+            }
             // LD (C), (A) | ----
-            0x4F => unimplemented!(),
+            0x4F => {
+                self.registers.c = self.registers.a;
+                4
+            }
             // LD (D), (B) | ----
-            0x50 => unimplemented!(),
+            0x50 => {
+                self.registers.d = self.registers.b;
+                4
+            }
             // LD (D), (C) | ----
-            0x51 => unimplemented!(),
+            0x51 => {
+                self.registers.d = self.registers.c;
+                4
+            }
             // LD (D), (D) | ----
-            0x52 => unimplemented!(),
+            0x52 => 4,
             // LD (D), (E) | ----
-            0x53 => unimplemented!(),
+            0x53 => {
+                self.registers.d = self.registers.e;
+                4
+            }
             // LD (D), (H) | ----
-            0x54 => unimplemented!(),
+            0x54 => {
+                self.registers.d = self.registers.h;
+                4
+            }
             // LD (D), (L) | ----
-            0x55 => unimplemented!(),
+            0x55 => {
+                self.registers.d = self.registers.l;
+                4
+            }
             // LD (D), HL | ----
-            0x56 => unimplemented!(),
+            0x56 => {
+                self.registers.d = self.mmu.read8(self.registers.hl());
+                8
+            }
             // LD (D), (A) | ----
-            0x57 => unimplemented!(),
+            0x57 => {
+                self.registers.d = self.registers.a;
+                4
+            }
             // LD (E), (B) | ----
-            0x58 => unimplemented!(),
+            0x58 => {
+                self.registers.e = self.registers.b;
+                4
+            }
             // LD (E), (C) | ----
-            0x59 => unimplemented!(),
+            0x59 => {
+                self.registers.e = self.registers.c;
+                4
+            }
             // LD (E), (D) | ----
-            0x5A => unimplemented!(),
+            0x5A => {
+                self.registers.e = self.registers.d;
+                4
+            }
             // LD (E), (E) | ----
-            0x5B => unimplemented!(),
+            0x5B => 4,
             // LD (E), (H) | ----
-            0x5C => unimplemented!(),
+            0x5C => {
+                self.registers.e = self.registers.h;
+                4
+            }
             // LD (E), (L) | ----
-            0x5D => unimplemented!(),
+            0x5D => {
+                self.registers.e = self.registers.l;
+                4
+            }
             // LD (E), HL | ----
-            0x5E => unimplemented!(),
+            0x5E => {
+                self.registers.e = self.mmu.read8(self.registers.hl());
+                8
+            }
             // LD (E), (A) | ----
-            0x5F => unimplemented!(),
+            0x5F => {
+                self.registers.e = self.registers.a;
+                4
+            }
             // LD (H), (B) | ----
-            0x60 => unimplemented!(),
+            0x60 => {
+                self.registers.h = self.registers.b;
+                4
+            }
             // LD (H), (C) | ----
-            0x61 => unimplemented!(),
+            0x61 => {
+                self.registers.h = self.registers.c;
+                4
+            }
             // LD (H), (D) | ----
-            0x62 => unimplemented!(),
+            0x62 => {
+                self.registers.h = self.registers.d;
+                4
+            }
             // LD (H), (E) | ----
-            0x63 => unimplemented!(),
+            0x63 => {
+                self.registers.h = self.registers.e;
+                4
+            }
             // LD (H), (H) | ----
-            0x64 => unimplemented!(),
+            0x64 => 4,
             // LD (H), (L) | ----
-            0x65 => unimplemented!(),
+            0x65 => {
+                self.registers.h = self.registers.l;
+                4
+            }
             // LD (H), HL | ----
-            0x66 => unimplemented!(),
+            0x66 => {
+                self.registers.h = self.mmu.read8(self.registers.hl());
+                8
+            }
             // LD (H), (A) | ----
-            0x67 => unimplemented!(),
+            0x67 => {
+                self.registers.h = self.registers.a;
+                4
+            }
             // LD (L), (B) | ----
-            0x68 => unimplemented!(),
+            0x68 => {
+                self.registers.l = self.registers.b;
+                4
+            }
             // LD (L), (C) | ----
-            0x69 => unimplemented!(),
+            0x69 => {
+                self.registers.l = self.registers.c;
+                4
+            }
             // LD (L), (D) | ----
-            0x6A => unimplemented!(),
+            0x6A => {
+                self.registers.l = self.registers.d;
+                4
+            }
             // LD (L), (E) | ----
-            0x6B => unimplemented!(),
+            0x6B => {
+                self.registers.l = self.registers.e;
+                4
+            }
             // LD (L), (H) | ----
-            0x6C => unimplemented!(),
+            0x6C => {
+                self.registers.l = self.registers.h;
+                4
+            }
             // LD (L), (L) | ----
-            0x6D => unimplemented!(),
+            0x6D => 4,
             // LD (L), HL | ----
-            0x6E => unimplemented!(),
+            0x6E => {
+                self.registers.l = self.mmu.read8(self.registers.hl());
+                8
+            }
             // LD (L), (A) | ----
-            0x6F => unimplemented!(),
+            0x6F => {
+                self.registers.l = self.registers.a;
+                4
+            }
             // LD HL, (B) | ----
-            0x70 => unimplemented!(),
+            0x70 => {
+                self.mmu.write8(self.registers.hl(), self.registers.b);
+                8
+            }
             // LD HL, (C) | ----
-            0x71 => unimplemented!(),
+            0x71 => {
+                self.mmu.write8(self.registers.hl(), self.registers.c);
+                8
+            }
             // LD HL, (D) | ----
-            0x72 => unimplemented!(),
+            0x72 => {
+                self.mmu.write8(self.registers.hl(), self.registers.d);
+                8
+            }
             // LD HL, (E) | ----
-            0x73 => unimplemented!(),
+            0x73 => {
+                self.mmu.write8(self.registers.hl(), self.registers.e);
+                8
+            }
             // LD HL, (H) | ----
-            0x74 => unimplemented!(),
+            0x74 => {
+                self.mmu.write8(self.registers.hl(), self.registers.h);
+                8
+            }
             // LD HL, (L) | ----
-            0x75 => unimplemented!(),
+            0x75 => {
+                self.mmu.write8(self.registers.hl(), self.registers.l);
+                8
+            }
             // HALT  | ----
             0x76 => {
                 self.halted = true;
                 1
             }
             // LD HL, (A) | ----
-            0x77 => unimplemented!(),
+            0x77 => {
+                self.mmu.write8(self.registers.hl(), self.registers.a);
+                8
+            }
             // LD (A), (B) | ----
-            0x78 => unimplemented!(),
+            0x78 => {
+                self.registers.a = self.registers.b;
+                4
+            }
             // LD (A), (C) | ----
-            0x79 => unimplemented!(),
+            0x79 => {
+                self.registers.a = self.registers.c;
+                4
+            }
             // LD (A), (D) | ----
-            0x7A => unimplemented!(),
+            0x7A => {
+                self.registers.a = self.registers.d;
+                4
+            }
             // LD (A), (E) | ----
-            0x7B => unimplemented!(),
+            0x7B => {
+                self.registers.a = self.registers.e;
+                4
+            }
             // LD (A), (H) | ----
-            0x7C => unimplemented!(),
+            0x7C => {
+                self.registers.a = self.registers.h;
+                4
+            }
             // LD (A), (L) | ----
-            0x7D => unimplemented!(),
+            0x7D => {
+                self.registers.a = self.registers.l;
+                4
+            }
             // LD (A), HL | ----
-            0x7E => unimplemented!(),
+            0x7E => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.registers.a = value;
+                8
+            }
             // LD (A), (A) | ----
-            0x7F => unimplemented!(),
+            0x7F => 4,
             // ADD (A), (B) | Z0HC
             0x80 => {
                 self.add8(self.registers.b);
@@ -769,11 +991,20 @@ impl CPU {
             // RST ($18) | ----
             0xDF => unimplemented!(),
             // LDH a8, (A) | ----
-            0xE0 => unimplemented!(),
+            // Put A into memory address $FF00+n
+            0xE0 => {
+                let addr = 0xFF00 + self.fetch8() as u16;
+                self.mmu.write8(addr, self.registers.a);
+                12
+            }
             // POP (HL) | ----
             0xE1 => unimplemented!(),
             // LD C, (A) | ----
-            0xE2 => unimplemented!(),
+            0xE2 => {
+                self.mmu
+                    .write8(0xFF00 + self.registers.c as u16, self.registers.a);
+                8
+            }
             // ILLEGAL(0xE3) | ----
             0xE3 => return Err(Error::IllegalInstruction(0xE3)),
             // ILLEGAL(0xE4) | ----
@@ -793,7 +1024,11 @@ impl CPU {
             // JP (HL) | ----
             0xE9 => unimplemented!(),
             // LD a16, (A) | ----
-            0xEA => unimplemented!(),
+            0xEA => {
+                let addr = self.fetch16();
+                self.mmu.write8(addr, self.registers.a);
+                16
+            }
             // ILLEGAL(0xEB) | ----
             0xEB => return Err(Error::IllegalInstruction(0xEB)),
             // ILLEGAL(0xEC) | ----
@@ -809,11 +1044,19 @@ impl CPU {
             // RST ($28) | ----
             0xEF => unimplemented!(),
             // LDH (A), a8 | ----
-            0xF0 => unimplemented!(),
+            // Put memory address $FF00+n into A
+            0xF0 => {
+                let addr = 0xFF00 + self.fetch8() as u16;
+                self.registers.a = self.mmu.read8(addr);
+                12
+            }
             // POP (AF) | ZNHC
             0xF1 => unimplemented!(),
             // LD (A), C | ----
-            0xF2 => unimplemented!(),
+            0xF2 => {
+                self.registers.a = self.mmu.read8(0xFF00 + self.registers.c as u16);
+                8
+            }
             // DI  | ----
             0xF3 => unimplemented!(),
             // ILLEGAL(0xF4) | ----
@@ -833,7 +1076,11 @@ impl CPU {
             // LD (SP), (HL) | ----
             0xF9 => unimplemented!(),
             // LD (A), a16 | ----
-            0xFA => unimplemented!(),
+            0xFA => {
+                let addr = self.fetch16();
+                self.registers.a = self.mmu.read8(addr);
+                16
+            }
             // EI  | ----
             0xFB => unimplemented!(),
             // ILLEGAL(0xFC) | ----
