@@ -44,7 +44,15 @@ impl CPU {
 
     pub fn boot(&mut self) {
         loop {
-            self.step();
+            match self.next() {
+                Ok(_cycles) => {
+                    // TODO(robherley): implement clocks
+                }
+                Err(err) => {
+                    eprintln!("crash: {:?}", err);
+                    return;
+                }
+            }
         }
     }
 
@@ -60,14 +68,9 @@ impl CPU {
         self.mmu.read16(pc)
     }
 
-    fn step(&mut self) -> usize {
-        // TODO(robherley): bubble up illegal instruction errors
-        self.exec().unwrap()
-    }
-
     /// Executes the next instruction and returns the number of t-cycles (system clock ticks) it took.
     /// https://gbdev.io/gb-opcodes/optables/
-    fn exec(&mut self) -> Result<usize, Error> {
+    fn next(&mut self) -> Result<usize, Error> {
         let cycles = match self.fetch8() {
             // NOP  | ----
             0x00 => 4,
@@ -933,7 +936,7 @@ impl CPU {
             // JP Z, a16 | ----
             0xCA => unimplemented!(),
             // PREFIX  | ----
-            0xCB => self.exec_cb(),
+            0xCB => self.cb(),
             // CALL Z, a16 | ----
             0xCC => unimplemented!(),
             // CALL a16 | ----
@@ -1096,7 +1099,7 @@ impl CPU {
         Ok(cycles)
     }
 
-    fn exec_cb(&mut self) -> usize {
+    fn cb(&mut self) -> usize {
         match self.fetch8() {
             _ => unimplemented!(),
         }
