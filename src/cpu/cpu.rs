@@ -196,8 +196,7 @@ impl CPU {
             }
             // INC (HL) | ----
             0x23 => {
-                let value = self.registers.hl().wrapping_add(1);
-                self.registers.set_hl(value);
+                self.registers.set_hl(self.registers.hl().wrapping_add(1));
                 8
             }
             // INC (H) | Z0H-
@@ -334,8 +333,7 @@ impl CPU {
             }
             // LD (B), HL | ----
             0x46 => {
-                let value = self.mmu.read8(self.registers.hl());
-                self.registers.b = value;
+                self.registers.b = self.mmu.read8(self.registers.hl());
                 8
             }
             // LD (B), (A) | ----
@@ -372,8 +370,7 @@ impl CPU {
             }
             // LD (C), HL | ----
             0x4E => {
-                let value = self.mmu.read8(self.registers.hl());
-                self.registers.c = value;
+                self.registers.c = self.mmu.read8(self.registers.hl());
                 8
             }
             // LD (C), (A) | ----
@@ -601,8 +598,7 @@ impl CPU {
             }
             // LD (A), HL | ----
             0x7E => {
-                let value = self.mmu.read8(self.registers.hl());
-                self.registers.a = value;
+                self.registers.a = self.mmu.read8(self.registers.hl());
                 8
             }
             // LD (A), (A) | ----
