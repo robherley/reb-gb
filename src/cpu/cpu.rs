@@ -1138,7 +1138,7 @@ impl CPU {
 
     // 8-bit add with carry (LHS is always register A)
     fn adc8(&mut self, value: u8) {
-        self.add8(value.wrapping_add(self.registers.flagC as u8));
+        self.add8(value.wrapping_add(self.registers.flag(C) as u8));
     }
 
     // 8-bit subtract (LHS is always register A)
@@ -1155,7 +1155,7 @@ impl CPU {
 
     // 8-bit subtract with carry (LHS is always register A)
     fn sbc8(&mut self, value: u8) {
-        self.sub8(value.wrapping_add(self.registers.flagC as u8));
+        self.sub8(value.wrapping_add(self.registers.flag(C) as u8));
     }
 
     // 8-bit AND (LHS is always register A)
