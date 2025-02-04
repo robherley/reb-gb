@@ -75,7 +75,7 @@ impl std::fmt::Debug for Registers {
 }
 
 impl Registers {
-    pub fn new(model: Model, cartridge: &Cartridge) -> Result<Registers, Error> {
+    pub fn new(model: Model, cartridge: &Cartridge) -> Registers {
         // https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
         let mut registers = Registers {
             a: 0x01,
@@ -99,11 +99,10 @@ impl Registers {
                     registers.set_flag(Flags::H, true);
                     registers.set_flag(Flags::C, true);
                 }
-            }
-            _ => return Err(Error::CPUNotSupported(model)),
+            } // TODO(robherley): implement the other models
         }
 
-        Ok(registers)
+        registers
     }
 
     pub fn af(&self) -> u16 {
@@ -169,7 +168,7 @@ mod tests {
 
         assert_eq!(
             registers,
-            Ok(Registers {
+            Registers {
                 a: 0x01,
                 f: 0xB0,
                 b: 0x00,
@@ -180,7 +179,7 @@ mod tests {
                 l: 0x4D,
                 pc: 0x0100,
                 sp: 0xFFFE,
-            })
+            }
         );
     }
 }

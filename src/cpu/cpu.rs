@@ -17,14 +17,14 @@ pub enum Model {
     DMG,
     /// Game Boy Pocket
     MGB,
-    /// Game Boy Color
-    CGB,
-    /// Super Game Boy
-    SGB,
-    /// Super Game Boy 2
-    SGB2,
-    /// Gameboy Advance
-    AGB,
+    // /// Game Boy Color
+    // CGB,
+    // /// Super Game Boy
+    // SGB,
+    // /// Super Game Boy 2
+    // SGB2,
+    // /// Gameboy Advance
+    // AGB,
 }
 
 pub struct CPU {
@@ -34,12 +34,12 @@ pub struct CPU {
 }
 
 impl CPU {
-    pub fn new(model: Model, cartridge: Cartridge) -> Result<CPU, Error> {
-        Ok(CPU {
-            registers: Registers::new(model, &cartridge)?,
+    pub fn new(model: Model, cartridge: Cartridge) -> CPU {
+        CPU {
+            registers: Registers::new(model, &cartridge),
             mmu: Memory::new(cartridge),
             halted: false,
-        })
+        }
     }
 
     pub fn boot(&mut self) {
@@ -1215,13 +1215,9 @@ mod tests {
       };
     }
 
-    fn build_cpu() -> CPU {
-        CPU::new(Model::DMG, Cartridge::default()).unwrap()
-    }
-
     #[test]
     fn test_inc8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.inc8(0x00);
         assert_eq!(result, 0x01);
         assert_flags!(cpu,
@@ -1233,7 +1229,7 @@ mod tests {
 
     #[test]
     fn test_inc8_carry() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.inc8(0x0F);
         assert_eq!(result, 0x10);
         assert_flags!(cpu,
@@ -1245,7 +1241,7 @@ mod tests {
 
     #[test]
     fn test_inc8_wrap() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.inc8(0xFF);
         assert_eq!(result, 0x00);
         assert_flags!(cpu,
@@ -1257,7 +1253,7 @@ mod tests {
 
     #[test]
     fn test_dec8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.dec8(0x02);
         assert_eq!(result, 0x01);
         assert_flags!(cpu,
@@ -1269,7 +1265,7 @@ mod tests {
 
     #[test]
     fn test_dec8_carry() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.dec8(0x10);
         assert_eq!(result, 0x0F);
         assert_flags!(cpu,
@@ -1281,7 +1277,7 @@ mod tests {
 
     #[test]
     fn test_dec8_zero() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.dec8(0x01);
         assert_eq!(result, 0x00);
         assert_flags!(cpu,
@@ -1293,7 +1289,7 @@ mod tests {
 
     #[test]
     fn test_dec8_wrap() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.dec8(0x00);
         assert_eq!(result, 0xFF);
         assert_flags!(cpu,
@@ -1305,7 +1301,7 @@ mod tests {
 
     #[test]
     fn test_add8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x01;
         cpu.add8(0x01);
         assert_eq!(cpu.registers.a, 0x02);
@@ -1319,7 +1315,7 @@ mod tests {
 
     #[test]
     fn test_add8_half_carry() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x0F;
         cpu.add8(0x01);
         assert_eq!(cpu.registers.a, 0x10);
@@ -1333,7 +1329,7 @@ mod tests {
 
     #[test]
     fn test_add8_carry() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0xFF;
         cpu.add8(0x01);
         assert_eq!(cpu.registers.a, 0x00);
@@ -1347,7 +1343,7 @@ mod tests {
 
     #[test]
     fn test_add8_wrap() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0xFF;
         cpu.add8(0x01);
         assert_eq!(cpu.registers.a, 0x00);
@@ -1361,7 +1357,7 @@ mod tests {
 
     #[test]
     fn test_adc8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x01;
         cpu.registers.set_flag(C, true);
         cpu.adc8(0x01);
@@ -1376,7 +1372,7 @@ mod tests {
 
     #[test]
     fn test_sub8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x01;
         cpu.sub8(0x01);
         assert_eq!(cpu.registers.a, 0x00);
@@ -1390,7 +1386,7 @@ mod tests {
 
     #[test]
     fn test_sub8_half_borrow() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x10;
         cpu.sub8(0x01);
         assert_eq!(cpu.registers.a, 0x0F);
@@ -1404,7 +1400,7 @@ mod tests {
 
     #[test]
     fn test_sub8_borrow() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x00;
         cpu.sub8(0x01);
         assert_eq!(cpu.registers.a, 0xFF);
@@ -1418,7 +1414,7 @@ mod tests {
 
     #[test]
     fn test_sbc8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x02;
         cpu.registers.set_flag(C, true);
         cpu.sbc8(0x01);
@@ -1433,7 +1429,7 @@ mod tests {
 
     #[test]
     fn test_and8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x0F;
         cpu.and8(0x0A);
         assert_eq!(cpu.registers.a, 0x0A);
@@ -1447,7 +1443,7 @@ mod tests {
 
     #[test]
     fn test_and8_zero() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x0F;
         cpu.and8(0xF0);
         assert_eq!(cpu.registers.a, 0x00);
@@ -1461,7 +1457,7 @@ mod tests {
 
     #[test]
     fn test_xor8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0xF0;
         cpu.xor8(0x0F);
         assert_eq!(cpu.registers.a, 0xFF);
@@ -1475,7 +1471,7 @@ mod tests {
 
     #[test]
     fn test_xor8_zero() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0xF0;
         cpu.xor8(0xF0);
         assert_eq!(cpu.registers.a, 0x00);
@@ -1489,7 +1485,7 @@ mod tests {
 
     #[test]
     fn test_or8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0xFF;
         cpu.or8(0xF0);
         assert_eq!(cpu.registers.a, 0xFF);
@@ -1503,7 +1499,7 @@ mod tests {
 
     #[test]
     fn test_or8_zero() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x00;
         cpu.or8(0x00);
         assert_eq!(cpu.registers.a, 0x00);
@@ -1517,7 +1513,7 @@ mod tests {
 
     #[test]
     fn test_cp8() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x01;
         cpu.cp8(0x01);
         assert_eq!(cpu.registers.a, 0x01);
@@ -1531,7 +1527,7 @@ mod tests {
 
     #[test]
     fn test_cp8_half_borrow() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x10;
         cpu.cp8(0x01);
         assert_eq!(cpu.registers.a, 0x10);
@@ -1545,7 +1541,7 @@ mod tests {
 
     #[test]
     fn test_cp8_borrow() {
-        let mut cpu = build_cpu();
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x00;
         cpu.cp8(0x01);
         assert_eq!(cpu.registers.a, 0x00);
