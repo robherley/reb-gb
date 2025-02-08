@@ -108,7 +108,11 @@ impl CPU {
             // RLCA  | 000C
             0x07 => unimplemented!(),
             // LD [a16], SP | ----
-            0x08 => unimplemented!(),
+            0x08 => {
+                let address = self.fetch16();
+                self.mmu.write16(address, self.registers.sp);
+                20
+            }
             // ADD HL, BC | -0HC
             0x09 => {
                 self.add16(self.registers.bc());
@@ -951,7 +955,11 @@ impl CPU {
             // RET NZ | ----
             0xC0 => unimplemented!(),
             // POP BC | ----
-            0xC1 => unimplemented!(),
+            0xC1 => {
+                let value = self.pop();
+                self.registers.set_bc(value);
+                12
+            }
             // JP NZ, a16 | ----
             0xC2 => unimplemented!(),
             // JP a16 | ----
@@ -959,7 +967,10 @@ impl CPU {
             // CALL NZ, a16 | ----
             0xC4 => unimplemented!(),
             // PUSH BC | ----
-            0xC5 => unimplemented!(),
+            0xC5 => {
+                self.push(self.registers.bc());
+                16
+            }
             // ADD A, n8 | Z0HC
             0xC6 => {
                 let value = self.fetch8();
@@ -991,7 +1002,11 @@ impl CPU {
             // RET NC | ----
             0xD0 => unimplemented!(),
             // POP DE | ----
-            0xD1 => unimplemented!(),
+            0xD1 => {
+                let value = self.pop();
+                self.registers.set_de(value);
+                12
+            }
             // JP NC, a16 | ----
             0xD2 => unimplemented!(),
             // ILLEGAL(0xD3) | ----
@@ -999,7 +1014,10 @@ impl CPU {
             // CALL NC, a16 | ----
             0xD4 => unimplemented!(),
             // PUSH DE | ----
-            0xD5 => unimplemented!(),
+            0xD5 => {
+                self.push(self.registers.de());
+                16
+            }
             // SUB A, n8 | Z1HC
             0xD6 => {
                 let value = self.fetch8();
@@ -1048,7 +1066,10 @@ impl CPU {
             // ILLEGAL(0xE4) | ----
             0xE4 => return Err(Error::IllegalInstruction(0xE4)),
             // PUSH HL | ----
-            0xE5 => unimplemented!(),
+            0xE5 => {
+                self.push(self.registers.hl());
+                16
+            }
             // AND A, n8 | Z010
             0xE6 => {
                 let value = self.fetch8();
@@ -1100,7 +1121,11 @@ impl CPU {
                 12
             }
             // POP AF | ZNHC
-            0xF1 => unimplemented!(),
+            0xF1 => {
+                let value = self.pop();
+                self.registers.set_af(value);
+                12
+            }
             // LD A, [C] | ----
             0xF2 => {
                 self.registers.a = self.mmu.read8(0xFF00 + self.registers.c as u16);
@@ -1111,7 +1136,10 @@ impl CPU {
             // ILLEGAL(0xF4) | ----
             0xF4 => return Err(Error::IllegalInstruction(0xF4)),
             // PUSH AF | ----
-            0xF5 => unimplemented!(),
+            0xF5 => {
+                self.push(self.registers.af());
+                16
+            }
             // OR A, n8 | Z000
             0xF6 => {
                 let value = self.fetch8();
@@ -1265,6 +1293,23 @@ impl CPU {
           H: (hl & 0x0FFF) + (value & 0x0FFF) > 0x0FFF,
           C: (hl as u32 + value as u32) > 0xFFFF
         );
+    }
+
+    // Push register pair nn onto stack.
+    // Decrement Stack Pointer (SP) twice.
+    fn push(&mut self, value: u16) {
+        // ref: 3.2.4. Stack Pointer
+        // "The Stack Pointer automatically decrements before it puts something onto the stack"
+        self.registers.sp = self.registers.sp.wrapping_sub(2);
+        self.mmu.write16(self.registers.sp, value);
+    }
+
+    // Pop two bytes from the stack into register pair nn.
+    // Increment Stack Pointer (SP) twice.
+    fn pop(&mut self) -> u16 {
+        let value = self.mmu.read16(self.registers.sp);
+        self.registers.sp = self.registers.sp.wrapping_add(2);
+        value
     }
 }
 
@@ -1655,5 +1700,15 @@ mod tests {
           H: true,
           C: true
         );
+    }
+
+    #[test]
+    fn test_push() {
+        // TODO(robherley): fake mmu
+    }
+
+    #[test]
+    fn test_pop() {
+        // TODO(robherley): fake mmu
     }
 }
