@@ -1052,7 +1052,18 @@ impl CPU {
             // RST $20 | ----
             0xE7 => unimplemented!(),
             // ADD SP, e8 | 00HC
-            0xE8 => unimplemented!(),
+            0xE8 => {
+                let value = self.fetch8() as u16;
+                let sp = self.registers.sp;
+                self.registers.sp = sp.wrapping_add(value);
+                flags!(self.registers,
+                    Z: false,
+                    N: false,
+                    H: (sp & 0x0FFF) + (value & 0x0FFF) > 0x0FFF,
+                    C: (sp as u32 + value as u32) > 0xFFFF
+                );
+                16
+            }
             // JP HL | ----
             0xE9 => unimplemented!(),
             // LD [a16], A | ----
