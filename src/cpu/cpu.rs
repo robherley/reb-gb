@@ -83,7 +83,10 @@ impl CPU {
             // LD [BC], A | ----
             0x02 => unimplemented!(),
             // INC BC | ----
-            0x03 => unimplemented!(),
+            0x03 => {
+                self.registers.set_bc(self.registers.bc().wrapping_add(1));
+                8
+            }
             // INC B | Z0H-
             0x04 => {
                 self.registers.b = self.inc8(self.registers.b);
@@ -111,7 +114,10 @@ impl CPU {
                 4
             }
             // DEC BC | ----
-            0x0B => unimplemented!(),
+            0x0B => {
+                self.registers.set_bc(self.registers.bc().wrapping_sub(1));
+                8
+            }
             // INC C | Z0H-
             0x0C => {
                 self.registers.c = self.inc8(self.registers.c);
@@ -140,7 +146,10 @@ impl CPU {
             // LD [DE], A | ----
             0x12 => unimplemented!(),
             // INC DE | ----
-            0x13 => unimplemented!(),
+            0x13 => {
+                self.registers.set_de(self.registers.de().wrapping_add(1));
+                8
+            }
             // INC D | Z0H-
             0x14 => {
                 self.registers.c = self.inc8(self.registers.d);
@@ -168,7 +177,10 @@ impl CPU {
                 4
             }
             // DEC DE | ----
-            0x1B => unimplemented!(),
+            0x1B => {
+                self.registers.set_de(self.registers.de().wrapping_sub(1));
+                8
+            }
             // INC E | Z0H-
             0x1C => {
                 self.registers.e = self.inc8(self.registers.e);
@@ -231,7 +243,10 @@ impl CPU {
                 8
             }
             // DEC HL | ----
-            0x2B => unimplemented!(),
+            0x2B => {
+                self.registers.set_hl(self.registers.hl().wrapping_sub(1));
+                8
+            }
             // INC L | Z0H-
             0x2C => {
                 self.registers.l = self.inc8(self.registers.l);
@@ -264,7 +279,10 @@ impl CPU {
                 8
             }
             // INC SP | ----
-            0x33 => unimplemented!(),
+            0x33 => {
+                self.registers.sp = self.registers.sp.wrapping_add(1);
+                8
+            }
             // INC [HL] | Z0H-
             0x34 => unimplemented!(),
             // DEC [HL] | Z1H-
@@ -289,7 +307,10 @@ impl CPU {
                 8
             }
             // DEC SP | ----
-            0x3B => unimplemented!(),
+            0x3B => {
+                self.registers.sp = self.registers.sp.wrapping_sub(1);
+                8
+            }
             // INC A | Z0H-
             0x3C => {
                 self.registers.a = self.inc8(self.registers.a);
