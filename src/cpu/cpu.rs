@@ -81,7 +81,10 @@ impl CPU {
                 12
             }
             // LD [BC], A | ----
-            0x02 => unimplemented!(),
+            0x02 => {
+                self.mmu.write8(self.registers.bc(), self.registers.a);
+                8
+            }
             // INC BC | ----
             0x03 => {
                 self.registers.set_bc(self.registers.bc().wrapping_add(1));
@@ -147,7 +150,10 @@ impl CPU {
                 12
             }
             // LD [DE], A | ----
-            0x12 => unimplemented!(),
+            0x12 => {
+                self.mmu.write8(self.registers.de(), self.registers.a);
+                8
+            }
             // INC DE | ----
             0x13 => {
                 self.registers.set_de(self.registers.de().wrapping_add(1));
