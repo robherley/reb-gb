@@ -1,4 +1,4 @@
-use super::cpu::{Error, Model};
+use super::cpu::Model;
 use crate::cartridge::Cartridge;
 
 /// Macro to set one or flags on the registers

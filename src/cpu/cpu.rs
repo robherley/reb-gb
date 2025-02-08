@@ -107,7 +107,10 @@ impl CPU {
             // LD [a16], SP | ----
             0x08 => unimplemented!(),
             // ADD HL, BC | -0HC
-            0x09 => unimplemented!(),
+            0x09 => {
+                self.add16(self.registers.bc());
+                8
+            }
             // LD A, [BC] | ----
             0x0A => {
                 self.registers.a = self.mmu.read8(self.registers.bc());
@@ -170,7 +173,10 @@ impl CPU {
             // JR e8 | ----
             0x18 => unimplemented!(),
             // ADD HL, DE | -0HC
-            0x19 => unimplemented!(),
+            0x19 => {
+                self.add16(self.registers.de());
+                8
+            }
             // LD A, [DE] | ----
             0x1A => {
                 self.registers.a = self.mmu.read8(self.registers.de());
@@ -234,7 +240,10 @@ impl CPU {
             // JR Z, e8 | ----
             0x28 => unimplemented!(),
             // ADD HL, HL | -0HC
-            0x29 => unimplemented!(),
+            0x29 => {
+                self.add16(self.registers.hl());
+                8
+            }
             // LD A, [HL+] | ----
             // Put value at address HL into A. Increment HL. Same as: LD A,HL - INC HL
             0x2A => {
@@ -298,7 +307,10 @@ impl CPU {
             // JR C, e8 | ----
             0x38 => unimplemented!(),
             // ADD HL, SP | -0HC
-            0x39 => unimplemented!(),
+            0x39 => {
+                self.add16(self.registers.sp);
+                8
+            }
             // LD A, [HL-] | ----
             // Put value at address HL into A. Decrement HL. Same as: LD A,HL - DEC HL
             0x3A => {
@@ -1225,6 +1237,18 @@ impl CPU {
         self.sub8(value);
         self.registers.a = a;
     }
+
+    // 16-bit add to HL
+    // Reset N, set carry and half-carry flags
+    fn add16(&mut self, value: u16) {
+        let hl = self.registers.hl();
+        self.registers.set_hl(hl.wrapping_add(value));
+        flags!(self.registers,
+          N: false,
+          H: (hl & 0x0FFF) + (value & 0x0FFF) > 0x0FFF,
+          C: (hl as u32 + value as u32) > 0xFFFF
+        );
+    }
 }
 
 #[cfg(test)]
@@ -1572,6 +1596,45 @@ mod tests {
         assert_flags!(cpu,
           Z: false,
           N: true,
+          H: true,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_add16() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.set_hl(0x1234);
+        cpu.add16(0x5678);
+        assert_eq!(cpu.registers.hl(), 0x68AC);
+        assert_flags!(cpu,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_add16_half_carry() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.set_hl(0x0FFF);
+        cpu.add16(0x0001);
+        assert_eq!(cpu.registers.hl(), 0x1000);
+        assert_flags!(cpu,
+          N: false,
+          H: true,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_add16_full_carry() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.set_hl(0xFFFF);
+        cpu.add16(0x0001);
+        assert_eq!(cpu.registers.hl(), 0x0000);
+        assert_flags!(cpu,
+          N: false,
           H: true,
           C: true
         );
