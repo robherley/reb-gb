@@ -217,7 +217,11 @@ impl CPU {
             // JR NZ, e8 | ----
             0x20 => unimplemented!(),
             // LD HL, n16 | ----
-            0x21 => unimplemented!(),
+            0x21 => {
+                let value = self.fetch16();
+                self.registers.set_hl(value);
+                12
+            }
             // LD [HL+], A | ----
             // Put A into memory address HL. Increment HL. Same as: LD HL,A - INC HL
             0x22 => {
@@ -303,9 +307,21 @@ impl CPU {
                 8
             }
             // INC [HL] | Z0H-
-            0x34 => unimplemented!(),
+            0x34 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.inc8(value);
+                self.mmu.write8(addr, result);
+                12
+            }
             // DEC [HL] | Z1H-
-            0x35 => unimplemented!(),
+            0x35 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.dec8(value);
+                self.mmu.write8(addr, result);
+                12
+            }
             // LD [HL], n8 | ----
             0x36 => {
                 let value = self.fetch8();
@@ -937,21 +953,46 @@ impl CPU {
                 4
             }
             // CP A, B | Z1HC
-            0xB8 => unimplemented!(),
+            0xB8 => {
+                self.cp8(self.registers.b);
+                4
+            }
             // CP A, C | Z1HC
-            0xB9 => unimplemented!(),
+            0xB9 => {
+                self.cp8(self.registers.c);
+                4
+            }
             // CP A, D | Z1HC
-            0xBA => unimplemented!(),
+            0xBA => {
+                self.cp8(self.registers.d);
+                4
+            }
             // CP A, E | Z1HC
-            0xBB => unimplemented!(),
+            0xBB => {
+                self.cp8(self.registers.e);
+                4
+            }
             // CP A, H | Z1HC
-            0xBC => unimplemented!(),
+            0xBC => {
+                self.cp8(self.registers.h);
+                4
+            }
             // CP A, L | Z1HC
-            0xBD => unimplemented!(),
+            0xBD => {
+                self.cp8(self.registers.l);
+                4
+            }
             // CP A, [HL] | Z1HC
-            0xBE => unimplemented!(),
+            0xBE => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.cp8(value);
+                8
+            }
             // CP A, A | 1100
-            0xBF => unimplemented!(),
+            0xBF => {
+                self.cp8(self.registers.a);
+                4
+            }
             // RET NZ | ----
             0xC0 => unimplemented!(),
             // POP BC | ----
@@ -1054,7 +1095,11 @@ impl CPU {
                 12
             }
             // POP HL | ----
-            0xE1 => unimplemented!(),
+            0xE1 => {
+                let value = self.pop();
+                self.registers.set_hl(value);
+                12
+            }
             // LD [C], A | ----
             0xE2 => {
                 self.mmu
