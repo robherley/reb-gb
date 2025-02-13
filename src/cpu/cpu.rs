@@ -1194,9 +1194,25 @@ impl CPU {
             // RST $30 | ----
             0xF7 => unimplemented!(),
             // LD HL, SP, e8 | 00HC
-            0xF8 => unimplemented!(),
+            0xF8 => {
+                let value = self.fetch8() as u16;
+                let sp = self.registers.sp;
+                let result = sp.wrapping_add(value);
+                self.registers.set_hl(result);
+                flags!(self.registers,
+                    Z: false,
+                    N: false,
+                    H: (sp & 0x0FFF) + (value & 0x0FFF) > 0x0FFF,
+                    C: (sp as u32 + value as u32) > 0xFFFF
+                );
+
+                12
+            }
             // LD SP, HL | ----
-            0xF9 => unimplemented!(),
+            0xF9 => {
+                self.registers.sp = self.registers.hl();
+                8
+            }
             // LD A, [a16] | ----
             0xFA => {
                 let addr = self.fetch16();
