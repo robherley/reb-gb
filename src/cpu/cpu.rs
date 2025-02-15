@@ -106,7 +106,10 @@ impl CPU {
                 8
             }
             // RLCA  | 000C
-            0x07 => unimplemented!(),
+            0x07 => {
+                self.registers.a = self.rlc(self.registers.a);
+                4
+            }
             // LD [a16], SP | ----
             0x08 => {
                 let address = self.fetch16();
@@ -144,7 +147,10 @@ impl CPU {
                 8
             }
             // RRCA  | 000C
-            0x0F => unimplemented!(),
+            0x0F => {
+                self.registers.a = self.rrc(self.registers.a);
+                4
+            }
             // STOP n8 | ----
             0x10 => unimplemented!(),
             // LD DE, n16 | ----
@@ -179,7 +185,10 @@ impl CPU {
                 8
             }
             // RLA  | 000C
-            0x17 => unimplemented!(),
+            0x17 => {
+                self.registers.a = self.rl(self.registers.a);
+                4
+            }
             // JR e8 | ----
             0x18 => unimplemented!(),
             // ADD HL, DE | -0HC
@@ -213,7 +222,10 @@ impl CPU {
                 8
             }
             // RRA  | 000C
-            0x1F => unimplemented!(),
+            0x1F => {
+                self.registers.a = self.rr(self.registers.a);
+                4
+            }
             // JR NZ, e8 | ----
             0x20 => unimplemented!(),
             // LD HL, n16 | ----
@@ -1372,6 +1384,62 @@ impl CPU {
         self.registers.sp = self.registers.sp.wrapping_add(2);
         value
     }
+
+    // Rotate left
+    // Old bit 7 to carry flag
+    fn rlc(&mut self, value: u8) -> u8 {
+        let carry = value & 0x80 != 0;
+        let result = (value << 1) | carry as u8;
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: carry
+        );
+        result
+    }
+
+    // Rotate left _through_ carry
+    // Old bit 7 to carry flag
+    fn rl(&mut self, value: u8) -> u8 {
+        let carry = value & 0x80 != 0;
+        let result = (value << 1) | self.registers.flag(C) as u8;
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: carry
+        );
+        result
+    }
+
+    // Rotate right
+    // Old bit 0 to carry flag
+    fn rrc(&mut self, value: u8) -> u8 {
+        let carry = value & 0x01 != 0;
+        let result = (value >> 1) | (carry as u8) << 7;
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: carry
+        );
+        result
+    }
+
+    // Rotate right _through_ carry
+    // Old bit 0 to carry flag
+    fn rr(&mut self, value: u8) -> u8 {
+        let carry = value & 0x01 != 0;
+        let result = (value >> 1) | (self.registers.flag(C) as u8) << 7;
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: carry
+        );
+        result
+    }
 }
 
 #[cfg(test)]
@@ -1771,5 +1839,111 @@ mod tests {
     #[test]
     fn test_pop() {
         // TODO(robherley): fake mmu
+    }
+
+    #[test]
+    fn test_rlc() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.rlc(0x85);
+        assert_eq!(result, 0x0B);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_rlc_zero() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.rlc(0x00);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_rl() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.set_flag(C, true);
+        let result = cpu.rl(0x85);
+        assert_eq!(result, 0x0B);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_rl_zero() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.rl(0x00);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_rrc() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.rrc(0x85);
+        assert_eq!(result, 0xC2);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_rrc_zero() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.rrc(0x00);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_rr() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.set_flag(C, true);
+        let result = cpu.rr(0x85);
+        assert_eq!(result, 0xC2);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_rr_zero() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.rr(0x00);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: false,
+          C: false
+        );
     }
 }
