@@ -152,7 +152,12 @@ impl CPU {
                 4
             }
             // STOP n8 | ----
-            0x10 => unimplemented!(),
+            0x10 => {
+                // TODO(robherley): 2.7.2. Stop Mode
+                // https://gbdev.io/pandocs/Reducing_Power_Consumption.html?highlight=stop#using-the-stop-instruction
+                // "No licensed rom makes use of STOP outside of CGB speed switching."
+                4
+            }
             // LD DE, n16 | ----
             0x11 => {
                 let value = self.fetch16();
