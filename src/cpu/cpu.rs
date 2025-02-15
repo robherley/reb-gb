@@ -195,7 +195,10 @@ impl CPU {
                 4
             }
             // JR e8 | ----
-            0x18 => unimplemented!(),
+            0x18 => {
+                self.jr();
+                8
+            }
             // ADD HL, DE | -0HC
             0x19 => {
                 self.add16(self.registers.de());
@@ -232,7 +235,14 @@ impl CPU {
                 4
             }
             // JR NZ, e8 | ----
-            0x20 => unimplemented!(),
+            0x20 => {
+                if self.registers.flag(Z) {
+                    8
+                } else {
+                    self.jr();
+                    12
+                }
+            }
             // LD HL, n16 | ----
             0x21 => {
                 let value = self.fetch16();
@@ -269,7 +279,14 @@ impl CPU {
             // DAA  | Z-0C
             0x27 => unimplemented!(),
             // JR Z, e8 | ----
-            0x28 => unimplemented!(),
+            0x28 => {
+                if self.registers.flag(Z) {
+                    self.jr();
+                    12
+                } else {
+                    8
+                }
+            }
             // ADD HL, HL | -0HC
             0x29 => {
                 self.add16(self.registers.hl());
@@ -305,7 +322,14 @@ impl CPU {
             // CPL  | -11-
             0x2F => unimplemented!(),
             // JR NC, e8 | ----
-            0x30 => unimplemented!(),
+            0x30 => {
+                if self.registers.flag(C) {
+                    8
+                } else {
+                    self.jr();
+                    12
+                }
+            }
             // LD SP, n16 | ----
             0x31 => {
                 self.registers.sp = self.fetch16();
@@ -348,7 +372,14 @@ impl CPU {
             // SCF  | -001
             0x37 => unimplemented!(),
             // JR C, e8 | ----
-            0x38 => unimplemented!(),
+            0x38 => {
+                if self.registers.flag(C) {
+                    self.jr();
+                    12
+                } else {
+                    8
+                }
+            }
             // ADD HL, SP | -0HC
             0x39 => {
                 self.add16(self.registers.sp);
@@ -1445,6 +1476,13 @@ impl CPU {
         );
         result
     }
+
+    // Relative jump.
+    // Add n to current address and jump to it.
+    fn jr(&mut self) {
+        let value = self.fetch8();
+        self.registers.pc = self.registers.pc.wrapping_add(value as u16);
+    }
 }
 
 #[cfg(test)]
@@ -1950,5 +1988,10 @@ mod tests {
           H: false,
           C: false
         );
+    }
+
+    #[test]
+    fn test_jr() {
+        // TODO(robherley): fake mmu
     }
 }
