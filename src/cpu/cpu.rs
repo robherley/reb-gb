@@ -1050,9 +1050,21 @@ impl CPU {
                 12
             }
             // JP NZ, a16 | ----
-            0xC2 => unimplemented!(),
+            0xC2 => {
+                let addr = self.fetch16();
+                if !self.registers.flag(Z) {
+                    self.registers.pc = addr;
+                    16
+                } else {
+                    12
+                }
+            }
             // JP a16 | ----
-            0xC3 => unimplemented!(),
+            0xC3 => {
+                let addr = self.fetch16();
+                self.registers.pc = addr;
+                16
+            }
             // CALL NZ, a16 | ----
             0xC4 => unimplemented!(),
             // PUSH BC | ----
@@ -1073,7 +1085,15 @@ impl CPU {
             // RET  | ----
             0xC9 => unimplemented!(),
             // JP Z, a16 | ----
-            0xCA => unimplemented!(),
+            0xCA => {
+                let addr = self.fetch16();
+                if self.registers.flag(Z) {
+                    self.registers.pc = addr;
+                    16
+                } else {
+                    12
+                }
+            }
             // PREFIX  | ----
             0xCB => self.cb(),
             // CALL Z, a16 | ----
@@ -1097,7 +1117,15 @@ impl CPU {
                 12
             }
             // JP NC, a16 | ----
-            0xD2 => unimplemented!(),
+            0xD2 => {
+                let addr = self.fetch16();
+                if !self.registers.flag(C) {
+                    self.registers.pc = addr;
+                    16
+                } else {
+                    12
+                }
+            }
             // ILLEGAL(0xD3) | ----
             0xD3 => return Err(Error::IllegalInstruction(0xD3)),
             // CALL NC, a16 | ----
@@ -1120,7 +1148,15 @@ impl CPU {
             // RETI  | ----
             0xD9 => unimplemented!(),
             // JP C, a16 | ----
-            0xDA => unimplemented!(),
+            0xDA => {
+                let addr = self.fetch16();
+                if self.registers.flag(C) {
+                    self.registers.pc = addr;
+                    16
+                } else {
+                    12
+                }
+            }
             // ILLEGAL(0xDB) | ----
             0xDB => return Err(Error::IllegalInstruction(0xDB)),
             // CALL C, a16 | ----
@@ -1185,7 +1221,10 @@ impl CPU {
                 16
             }
             // JP HL | ----
-            0xE9 => unimplemented!(),
+            0xE9 => {
+                self.registers.pc = self.registers.hl();
+                4
+            }
             // LD [a16], A | ----
             0xEA => {
                 let addr = self.fetch16();
