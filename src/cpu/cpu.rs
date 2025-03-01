@@ -1719,7 +1719,7 @@ mod tests {
     fn test_adc8() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x01;
-        cpu.registers.set_flag(C, true);
+        flags!(cpu.registers, C: true);
         cpu.adc8(0x01);
         assert_eq!(cpu.registers.a, 0x03);
         assert_flags!(cpu,
@@ -1776,7 +1776,7 @@ mod tests {
     fn test_sbc8() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x02;
-        cpu.registers.set_flag(C, true);
+        flags!(cpu.registers, C: true);
         cpu.sbc8(0x01);
         assert_eq!(cpu.registers.a, 0x00);
         assert_flags!(cpu,
@@ -1991,7 +1991,7 @@ mod tests {
     #[test]
     fn test_rl() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
-        cpu.registers.set_flag(C, true);
+        flags!(cpu.registers, C: true);
         let result = cpu.rl(0x85);
         assert_eq!(result, 0x0B);
         assert_flags!(cpu,
@@ -2044,7 +2044,7 @@ mod tests {
     #[test]
     fn test_rr() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
-        cpu.registers.set_flag(C, true);
+        flags!(cpu.registers, C: true);
         let result = cpu.rr(0x85);
         assert_eq!(result, 0xC2);
         assert_flags!(cpu,
@@ -2077,9 +2077,11 @@ mod tests {
     fn test_daa_none() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x10;
-        cpu.registers.set_flag(N, false);
-        cpu.registers.set_flag(H, false);
-        cpu.registers.set_flag(C, false);
+        flags!(cpu.registers,
+          N: false,
+          H: false,
+          C: false
+        );
         cpu.daa();
         assert_eq!(cpu.registers.a, 0x10);
         assert_flags!(cpu,
@@ -2094,9 +2096,11 @@ mod tests {
     fn test_daa_add_half_carry() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x0A;
-        cpu.registers.set_flag(N, false);
-        cpu.registers.set_flag(H, true);
-        cpu.registers.set_flag(C, false);
+        flags!(cpu.registers,
+          N: false,
+          H: true,
+          C: false
+        );
         cpu.daa();
         assert_eq!(cpu.registers.a, 0x10);
         assert_flags!(cpu,
@@ -2111,9 +2115,11 @@ mod tests {
     fn test_daa_add_carry() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x9B;
-        cpu.registers.set_flag(N, false);
-        cpu.registers.set_flag(H, false);
-        cpu.registers.set_flag(C, false);
+        flags!(cpu.registers,
+          N: false,
+          H: false,
+          C: true
+        );
         cpu.daa();
         assert_eq!(cpu.registers.a, 0x01);
         assert_flags!(cpu,
@@ -2128,9 +2134,11 @@ mod tests {
     fn test_daa_sub_half_carry() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x0C;
-        cpu.registers.set_flag(N, true);
-        cpu.registers.set_flag(H, true);
-        cpu.registers.set_flag(C, false);
+        flags!(cpu.registers,
+          N: true,
+          H: true,
+          C: false
+        );
         cpu.daa();
         assert_eq!(cpu.registers.a, 0x06);
         assert_flags!(cpu,
@@ -2145,9 +2153,11 @@ mod tests {
     fn test_daa_sub_carry() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0xC4;
-        cpu.registers.set_flag(N, true);
-        cpu.registers.set_flag(H, false);
-        cpu.registers.set_flag(C, true);
+        flags!(cpu.registers,
+          N: true,
+          H: false,
+          C: true
+        );
         cpu.daa();
         assert_eq!(cpu.registers.a, 0x64);
         assert_flags!(cpu,
