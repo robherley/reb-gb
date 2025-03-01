@@ -8,6 +8,7 @@ Opcodes:
 - https://gbdev.io/gb-opcodes/optables/
 - https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
 - https://izik1.github.io/gbops/
+- DAA: https://blog.ollien.com/posts/gb-daa/
 
 Implementation Guides:
 - https://www.youtube.com/watch?v=e87qKixKFME

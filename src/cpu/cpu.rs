@@ -277,7 +277,10 @@ impl CPU {
                 8
             }
             // DAA  | Z-0C
-            0x27 => unimplemented!(),
+            0x27 => {
+                self.daa();
+                4
+            }
             // JR Z, e8 | ----
             0x28 => {
                 if self.registers.flag(Z) {
@@ -320,7 +323,14 @@ impl CPU {
                 8
             }
             // CPL  | -11-
-            0x2F => unimplemented!(),
+            0x2F => {
+                self.registers.a = !self.registers.a;
+                flags!(self.registers,
+                    N: true,
+                    H: true,
+                );
+                4
+            }
             // JR NC, e8 | ----
             0x30 => {
                 if self.registers.flag(C) {
@@ -1522,6 +1532,35 @@ impl CPU {
         let value = self.fetch8();
         self.registers.pc = self.registers.pc.wrapping_add(value as u16);
     }
+
+    // Decimal adjust register A. This instruction adjusts register A so that the correct representation of Binary
+    // Coded Decimal (BCD) is obtained.
+    fn daa(&mut self) {
+        let mut offset = 0x0_u8;
+
+        // we're moving between base 10 and 16, so we adjust carries with 6
+        let carry = self.registers.a > 0x99;
+        if self.registers.flag(C) || (!self.registers.flag(N) && carry) {
+            offset |= 0x60;
+        }
+
+        let half_carry = self.registers.a & 0x0F > 0x09;
+        if self.registers.flag(H) || (!self.registers.flag(N) && half_carry) {
+            offset |= 0x06;
+        }
+
+        self.registers.a = if self.registers.flag(N) {
+            self.registers.a.wrapping_sub(offset)
+        } else {
+            self.registers.a.wrapping_add(offset)
+        };
+
+        flags!(self.registers,
+            Z: self.registers.a == 0,
+            H: false,
+            C: offset >= 0x60
+        );
+    }
 }
 
 #[cfg(test)]
@@ -2032,5 +2071,90 @@ mod tests {
     #[test]
     fn test_jr() {
         // TODO(robherley): fake mmu
+    }
+
+    #[test]
+    fn test_daa_none() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.a = 0x10;
+        cpu.registers.set_flag(N, false);
+        cpu.registers.set_flag(H, false);
+        cpu.registers.set_flag(C, false);
+        cpu.daa();
+        assert_eq!(cpu.registers.a, 0x10);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_daa_add_half_carry() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.a = 0x0A;
+        cpu.registers.set_flag(N, false);
+        cpu.registers.set_flag(H, true);
+        cpu.registers.set_flag(C, false);
+        cpu.daa();
+        assert_eq!(cpu.registers.a, 0x10);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_daa_add_carry() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.a = 0x9B;
+        cpu.registers.set_flag(N, false);
+        cpu.registers.set_flag(H, false);
+        cpu.registers.set_flag(C, false);
+        cpu.daa();
+        assert_eq!(cpu.registers.a, 0x01);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_daa_sub_half_carry() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.a = 0x0C;
+        cpu.registers.set_flag(N, true);
+        cpu.registers.set_flag(H, true);
+        cpu.registers.set_flag(C, false);
+        cpu.daa();
+        assert_eq!(cpu.registers.a, 0x06);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_daa_sub_carry() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.a = 0xC4;
+        cpu.registers.set_flag(N, true);
+        cpu.registers.set_flag(H, false);
+        cpu.registers.set_flag(C, true);
+        cpu.daa();
+        assert_eq!(cpu.registers.a, 0x64);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: false,
+          C: true
+        );
     }
 }
