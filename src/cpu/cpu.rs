@@ -1120,7 +1120,11 @@ impl CPU {
                 8
             }
             // RST $00 | ----
-            0xC7 => unimplemented!(),
+            0xC7 => {
+                self.push(self.registers.pc);
+                self.registers.pc = 0x00;
+                16
+            }
             // RET Z | ----
             0xC8 => unimplemented!(),
             // RET  | ----
@@ -1148,7 +1152,11 @@ impl CPU {
                 8
             }
             // RST $08 | ----
-            0xCF => unimplemented!(),
+            0xCF => {
+                self.push(self.registers.pc);
+                self.registers.pc = 0x08;
+                16
+            }
             // RET NC | ----
             0xD0 => unimplemented!(),
             // POP DE | ----
@@ -1183,7 +1191,11 @@ impl CPU {
                 8
             }
             // RST $10 | ----
-            0xD7 => unimplemented!(),
+            0xD7 => {
+                self.push(self.registers.pc);
+                self.registers.pc = 0x10;
+                16
+            }
             // RET C | ----
             0xD8 => unimplemented!(),
             // RETI  | ----
@@ -1215,7 +1227,11 @@ impl CPU {
                 8
             }
             // RST $18 | ----
-            0xDF => unimplemented!(),
+            0xDF => {
+                self.push(self.registers.pc);
+                self.registers.pc = 0x18;
+                16
+            }
             // LDH [a8], A | ----
             // Put A into memory address $FF00+n
             0xE0 => {
@@ -1251,7 +1267,11 @@ impl CPU {
                 8
             }
             // RST $20 | ----
-            0xE7 => unimplemented!(),
+            0xE7 => {
+                self.push(self.registers.pc);
+                self.registers.pc = 0x20;
+                16
+            }
             // ADD SP, e8 | 00HC
             0xE8 => {
                 let value = self.fetch8() as u16;
@@ -1289,7 +1309,11 @@ impl CPU {
                 8
             }
             // RST $28 | ----
-            0xEF => unimplemented!(),
+            0xEF => {
+                self.push(self.registers.pc);
+                self.registers.pc = 0x28;
+                16
+            }
             // LDH A, [a8] | ----
             // Put memory address $FF00+n into A
             0xF0 => {
@@ -1327,7 +1351,11 @@ impl CPU {
                 8
             }
             // RST $30 | ----
-            0xF7 => unimplemented!(),
+            0xF7 => {
+                self.push(self.registers.pc);
+                self.registers.pc = 0x30;
+                16
+            }
             // LD HL, SP, e8 | 00HC
             0xF8 => {
                 let value = self.fetch8() as u16;
@@ -1370,7 +1398,11 @@ impl CPU {
                 8
             }
             // RST $38 | ----
-            0xFF => unimplemented!(),
+            0xFF => {
+                self.push(self.registers.pc);
+                self.registers.pc = 0x38;
+                16
+            }
         };
 
         Ok(cycles)
