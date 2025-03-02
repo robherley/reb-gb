@@ -397,7 +397,14 @@ impl CPU {
                 12
             }
             // SCF  | -001
-            0x37 => unimplemented!(),
+            0x37 => {
+                flags!(self.registers,
+                    N: false,
+                    H: false,
+                    C: true,
+                );
+                4
+            }
             // JR C, e8 | ----
             0x38 => {
                 if self.registers.flag(C) {
@@ -440,7 +447,14 @@ impl CPU {
                 8
             }
             // CCF  | -00C
-            0x3F => unimplemented!(),
+            0x3F => {
+                flags!(self.registers,
+                    N: false,
+                    H: false,
+                    C: !self.registers.flag(C),
+                );
+                4
+            }
             // LD B, B | ----
             0x40 => 4,
             // LD B, C | ----
