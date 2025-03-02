@@ -1083,7 +1083,14 @@ impl CPU {
                 4
             }
             // RET NZ | ----
-            0xC0 => unimplemented!(),
+            0xC0 => {
+                if !self.registers.flag(Z) {
+                    self.registers.pc = self.pop();
+                    20
+                } else {
+                    8
+                }
+            }
             // POP BC | ----
             0xC1 => {
                 let value = self.pop();
@@ -1126,9 +1133,19 @@ impl CPU {
                 16
             }
             // RET Z | ----
-            0xC8 => unimplemented!(),
+            0xC8 => {
+                if self.registers.flag(Z) {
+                    self.registers.pc = self.pop();
+                    20
+                } else {
+                    8
+                }
+            }
             // RET  | ----
-            0xC9 => unimplemented!(),
+            0xC9 => {
+                self.registers.pc = self.pop();
+                16
+            }
             // JP Z, a16 | ----
             0xCA => {
                 let addr = self.fetch16();
@@ -1158,7 +1175,14 @@ impl CPU {
                 16
             }
             // RET NC | ----
-            0xD0 => unimplemented!(),
+            0xD0 => {
+                if !self.registers.flag(C) {
+                    self.registers.pc = self.pop();
+                    20
+                } else {
+                    8
+                }
+            }
             // POP DE | ----
             0xD1 => {
                 let value = self.pop();
@@ -1197,7 +1221,14 @@ impl CPU {
                 16
             }
             // RET C | ----
-            0xD8 => unimplemented!(),
+            0xD8 => {
+                if self.registers.flag(C) {
+                    self.registers.pc = self.pop();
+                    20
+                } else {
+                    8
+                }
+            }
             // RETI  | ----
             0xD9 => {
                 self.registers.pc = self.pop();
