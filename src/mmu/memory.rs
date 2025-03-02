@@ -6,12 +6,18 @@ pub trait RW {
 }
 
 pub struct Memory {
-    cartridge: Cartridge,
+    pub cartridge: Cartridge,
+    pub ienable: ByteRW,
+    pub iflag: ByteRW,
 }
 
 impl Memory {
     pub fn new(cartridge: Cartridge) -> Self {
-        Memory { cartridge }
+        Memory {
+            cartridge,
+            ienable: ByteRW::default(),
+            iflag: ByteRW::default(),
+        }
     }
 
     pub fn map(&mut self, address: u16) -> &mut dyn RW {
@@ -33,6 +39,7 @@ impl Memory {
             // 0xFF01 - 0xFF02 : Serial transfer
             // 0xFF04 - 0xFF07 : Timer and divider
             // 0xFF0F : Interrupt flag register
+            0xFF0F => &mut self.iflag,
             // 0xFF10 - 0xFF26 : Audio
             // 0xFF30 - 0xFF3F : Wave pattern
             // 0xFF40 - 0xFF4B : LCD
@@ -44,6 +51,7 @@ impl Memory {
             // 0xFF70 : WRAM Bank Select
             // 0xFF80 - 0xFFFE : Zero Page (HRAM)
             // 0xFFFF : Interrupt enable register
+            0xFFFF => &mut self.ienable,
             _ => unimplemented!("unimplemented memory access: {:#06x}", address),
         }
     }
@@ -67,5 +75,31 @@ impl Memory {
         let high = (value >> 8) as u8;
         self.write8(address, low);
         self.write8(address + 1, high);
+    }
+}
+
+pub struct ByteRW {
+    pub value: u8,
+}
+
+impl ByteRW {
+    pub fn new(value: u8) -> Self {
+        ByteRW { value }
+    }
+}
+
+impl Default for ByteRW {
+    fn default() -> Self {
+        ByteRW { value: 0 }
+    }
+}
+
+impl RW for ByteRW {
+    fn read(&self, _address: u16) -> u8 {
+        self.value
+    }
+
+    fn write(&mut self, _address: u16, value: u8) {
+        self.value = value;
     }
 }

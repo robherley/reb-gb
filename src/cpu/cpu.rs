@@ -1,3 +1,4 @@
+use super::interrupts::Interrupts;
 use super::registers::{Flags::*, Registers};
 use crate::cartridge::Cartridge;
 use crate::flags;
@@ -31,6 +32,7 @@ pub struct CPU {
     registers: Registers,
     mmu: Memory,
     halted: bool,
+    interrupts: Interrupts,
 }
 
 impl CPU {
@@ -39,11 +41,22 @@ impl CPU {
             registers: Registers::new(model, &cartridge),
             mmu: Memory::new(cartridge),
             halted: false,
+            interrupts: Interrupts::default(),
         }
     }
 
     pub fn boot(&mut self) {
         loop {
+            self.interrupts.update();
+
+            if self.interrupts.ime {
+                self.interrupt();
+            }
+
+            if self.halted {
+                continue;
+            }
+
             match self.next() {
                 Ok(_cycles) => {
                     // TODO(robherley): implement clocks
@@ -54,6 +67,10 @@ impl CPU {
                 }
             }
         }
+    }
+
+    fn interrupt(&mut self) {
+        // TODO(robherley): handle interrupts
     }
 
     fn fetch8(&mut self) -> u8 {
@@ -1156,7 +1173,11 @@ impl CPU {
             // RET C | ----
             0xD8 => unimplemented!(),
             // RETI  | ----
-            0xD9 => unimplemented!(),
+            0xD9 => {
+                self.registers.pc = self.pop();
+                self.interrupts.enable(true);
+                16
+            }
             // JP C, a16 | ----
             0xDA => {
                 let addr = self.fetch16();
@@ -1274,7 +1295,10 @@ impl CPU {
                 8
             }
             // DI  | ----
-            0xF3 => unimplemented!(),
+            0xF3 => {
+                self.interrupts.disable();
+                4
+            }
             // ILLEGAL(0xF4) | ----
             0xF4 => return Err(Error::IllegalInstruction(0xF4)),
             // PUSH AF | ----
@@ -1317,7 +1341,10 @@ impl CPU {
                 16
             }
             // EI  | ----
-            0xFB => unimplemented!(),
+            0xFB => {
+                self.interrupts.enable(false);
+                4
+            }
             // ILLEGAL(0xFC) | ----
             0xFC => return Err(Error::IllegalInstruction(0xFC)),
             // ILLEGAL(0xFD) | ----

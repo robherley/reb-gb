@@ -1,6 +1,7 @@
 pub mod cpu {
     mod cpu;
     pub use cpu::*;
+    mod interrupts;
     mod registers;
 }
 
