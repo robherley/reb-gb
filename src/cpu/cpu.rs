@@ -1482,7 +1482,518 @@ impl CPU {
 
     fn cb(&mut self) -> usize {
         match self.fetch8() {
-            _ => unimplemented!(),
+            // RLC B | Z00C
+            0x00 => unimplemented!(),
+            // RLC C | Z00C
+            0x01 => unimplemented!(),
+            // RLC D | Z00C
+            0x02 => unimplemented!(),
+            // RLC E | Z00C
+            0x03 => unimplemented!(),
+            // RLC H | Z00C
+            0x04 => unimplemented!(),
+            // RLC L | Z00C
+            0x05 => unimplemented!(),
+            // RLC (HL) | Z00C
+            0x06 => unimplemented!(),
+            // RLC A | Z00C
+            0x07 => unimplemented!(),
+            // RRC B | Z00C
+            0x08 => unimplemented!(),
+            // RRC C | Z00C
+            0x09 => unimplemented!(),
+            // RRC D | Z00C
+            0x0A => unimplemented!(),
+            // RRC E | Z00C
+            0x0B => unimplemented!(),
+            // RRC H | Z00C
+            0x0C => unimplemented!(),
+            // RRC L | Z00C
+            0x0D => unimplemented!(),
+            // RRC (HL) | Z00C
+            0x0E => unimplemented!(),
+            // RRC A | Z00C
+            0x0F => unimplemented!(),
+            // RL B | Z00C
+            0x10 => unimplemented!(),
+            // RL C | Z00C
+            0x11 => unimplemented!(),
+            // RL D | Z00C
+            0x12 => unimplemented!(),
+            // RL E | Z00C
+            0x13 => unimplemented!(),
+            // RL H | Z00C
+            0x14 => unimplemented!(),
+            // RL L | Z00C
+            0x15 => unimplemented!(),
+            // RL (HL) | Z00C
+            0x16 => unimplemented!(),
+            // RL A | Z00C
+            0x17 => unimplemented!(),
+            // RR B | Z00C
+            0x18 => unimplemented!(),
+            // RR C | Z00C
+            0x19 => unimplemented!(),
+            // RR D | Z00C
+            0x1A => unimplemented!(),
+            // RR E | Z00C
+            0x1B => unimplemented!(),
+            // RR H | Z00C
+            0x1C => unimplemented!(),
+            // RR L | Z00C
+            0x1D => unimplemented!(),
+            // RR (HL) | Z00C
+            0x1E => unimplemented!(),
+            // RR A | Z00C
+            0x1F => unimplemented!(),
+            // SLA B | Z00C
+            0x20 => unimplemented!(),
+            // SLA C | Z00C
+            0x21 => unimplemented!(),
+            // SLA D | Z00C
+            0x22 => unimplemented!(),
+            // SLA E | Z00C
+            0x23 => unimplemented!(),
+            // SLA H | Z00C
+            0x24 => unimplemented!(),
+            // SLA L | Z00C
+            0x25 => unimplemented!(),
+            // SLA (HL) | Z00C
+            0x26 => unimplemented!(),
+            // SLA A | Z00C
+            0x27 => unimplemented!(),
+            // SRA B | Z00C
+            0x28 => unimplemented!(),
+            // SRA C | Z00C
+            0x29 => unimplemented!(),
+            // SRA D | Z00C
+            0x2A => unimplemented!(),
+            // SRA E | Z00C
+            0x2B => unimplemented!(),
+            // SRA H | Z00C
+            0x2C => unimplemented!(),
+            // SRA L | Z00C
+            0x2D => unimplemented!(),
+            // SRA (HL) | Z00C
+            0x2E => unimplemented!(),
+            // SRA A | Z00C
+            0x2F => unimplemented!(),
+            // SWAP B | Z000
+            0x30 => unimplemented!(),
+            // SWAP C | Z000
+            0x31 => unimplemented!(),
+            // SWAP D | Z000
+            0x32 => unimplemented!(),
+            // SWAP E | Z000
+            0x33 => unimplemented!(),
+            // SWAP H | Z000
+            0x34 => unimplemented!(),
+            // SWAP L | Z000
+            0x35 => unimplemented!(),
+            // SWAP (HL) | Z000
+            0x36 => unimplemented!(),
+            // SWAP A | Z000
+            0x37 => unimplemented!(),
+            // SRL B | Z00C
+            0x38 => unimplemented!(),
+            // SRL C | Z00C
+            0x39 => unimplemented!(),
+            // SRL D | Z00C
+            0x3A => unimplemented!(),
+            // SRL E | Z00C
+            0x3B => unimplemented!(),
+            // SRL H | Z00C
+            0x3C => unimplemented!(),
+            // SRL L | Z00C
+            0x3D => unimplemented!(),
+            // SRL (HL) | Z00C
+            0x3E => unimplemented!(),
+            // SRL A | Z00C
+            0x3F => unimplemented!(),
+            // BIT 0, B | Z01-
+            0x40 => unimplemented!(),
+            // BIT 0, C | Z01-
+            0x41 => unimplemented!(),
+            // BIT 0, D | Z01-
+            0x42 => unimplemented!(),
+            // BIT 0, E | Z01-
+            0x43 => unimplemented!(),
+            // BIT 0, H | Z01-
+            0x44 => unimplemented!(),
+            // BIT 0, L | Z01-
+            0x45 => unimplemented!(),
+            // BIT 0, (HL) | Z01-
+            0x46 => unimplemented!(),
+            // BIT 0, A | Z01-
+            0x47 => unimplemented!(),
+            // BIT 1, B | Z01-
+            0x48 => unimplemented!(),
+            // BIT 1, C | Z01-
+            0x49 => unimplemented!(),
+            // BIT 1, D | Z01-
+            0x4A => unimplemented!(),
+            // BIT 1, E | Z01-
+            0x4B => unimplemented!(),
+            // BIT 1, H | Z01-
+            0x4C => unimplemented!(),
+            // BIT 1, L | Z01-
+            0x4D => unimplemented!(),
+            // BIT 1, (HL) | Z01-
+            0x4E => unimplemented!(),
+            // BIT 1, A | Z01-
+            0x4F => unimplemented!(),
+            // BIT 2, B | Z01-
+            0x50 => unimplemented!(),
+            // BIT 2, C | Z01-
+            0x51 => unimplemented!(),
+            // BIT 2, D | Z01-
+            0x52 => unimplemented!(),
+            // BIT 2, E | Z01-
+            0x53 => unimplemented!(),
+            // BIT 2, H | Z01-
+            0x54 => unimplemented!(),
+            // BIT 2, L | Z01-
+            0x55 => unimplemented!(),
+            // BIT 2, (HL) | Z01-
+            0x56 => unimplemented!(),
+            // BIT 2, A | Z01-
+            0x57 => unimplemented!(),
+            // BIT 3, B | Z01-
+            0x58 => unimplemented!(),
+            // BIT 3, C | Z01-
+            0x59 => unimplemented!(),
+            // BIT 3, D | Z01-
+            0x5A => unimplemented!(),
+            // BIT 3, E | Z01-
+            0x5B => unimplemented!(),
+            // BIT 3, H | Z01-
+            0x5C => unimplemented!(),
+            // BIT 3, L | Z01-
+            0x5D => unimplemented!(),
+            // BIT 3, (HL) | Z01-
+            0x5E => unimplemented!(),
+            // BIT 3, A | Z01-
+            0x5F => unimplemented!(),
+            // BIT 4, B | Z01-
+            0x60 => unimplemented!(),
+            // BIT 4, C | Z01-
+            0x61 => unimplemented!(),
+            // BIT 4, D | Z01-
+            0x62 => unimplemented!(),
+            // BIT 4, E | Z01-
+            0x63 => unimplemented!(),
+            // BIT 4, H | Z01-
+            0x64 => unimplemented!(),
+            // BIT 4, L | Z01-
+            0x65 => unimplemented!(),
+            // BIT 4, (HL) | Z01-
+            0x66 => unimplemented!(),
+            // BIT 4, A | Z01-
+            0x67 => unimplemented!(),
+            // BIT 5, B | Z01-
+            0x68 => unimplemented!(),
+            // BIT 5, C | Z01-
+            0x69 => unimplemented!(),
+            // BIT 5, D | Z01-
+            0x6A => unimplemented!(),
+            // BIT 5, E | Z01-
+            0x6B => unimplemented!(),
+            // BIT 5, H | Z01-
+            0x6C => unimplemented!(),
+            // BIT 5, L | Z01-
+            0x6D => unimplemented!(),
+            // BIT 5, (HL) | Z01-
+            0x6E => unimplemented!(),
+            // BIT 5, A | Z01-
+            0x6F => unimplemented!(),
+            // BIT 6, B | Z01-
+            0x70 => unimplemented!(),
+            // BIT 6, C | Z01-
+            0x71 => unimplemented!(),
+            // BIT 6, D | Z01-
+            0x72 => unimplemented!(),
+            // BIT 6, E | Z01-
+            0x73 => unimplemented!(),
+            // BIT 6, H | Z01-
+            0x74 => unimplemented!(),
+            // BIT 6, L | Z01-
+            0x75 => unimplemented!(),
+            // BIT 6, (HL) | Z01-
+            0x76 => unimplemented!(),
+            // BIT 6, A | Z01-
+            0x77 => unimplemented!(),
+            // BIT 7, B | Z01-
+            0x78 => unimplemented!(),
+            // BIT 7, C | Z01-
+            0x79 => unimplemented!(),
+            // BIT 7, D | Z01-
+            0x7A => unimplemented!(),
+            // BIT 7, E | Z01-
+            0x7B => unimplemented!(),
+            // BIT 7, H | Z01-
+            0x7C => unimplemented!(),
+            // BIT 7, L | Z01-
+            0x7D => unimplemented!(),
+            // BIT 7, (HL) | Z01-
+            0x7E => unimplemented!(),
+            // BIT 7, A | Z01-
+            0x7F => unimplemented!(),
+            // RES 0, B | ----
+            0x80 => unimplemented!(),
+            // RES 0, C | ----
+            0x81 => unimplemented!(),
+            // RES 0, D | ----
+            0x82 => unimplemented!(),
+            // RES 0, E | ----
+            0x83 => unimplemented!(),
+            // RES 0, H | ----
+            0x84 => unimplemented!(),
+            // RES 0, L | ----
+            0x85 => unimplemented!(),
+            // RES 0, (HL) | ----
+            0x86 => unimplemented!(),
+            // RES 0, A | ----
+            0x87 => unimplemented!(),
+            // RES 1, B | ----
+            0x88 => unimplemented!(),
+            // RES 1, C | ----
+            0x89 => unimplemented!(),
+            // RES 1, D | ----
+            0x8A => unimplemented!(),
+            // RES 1, E | ----
+            0x8B => unimplemented!(),
+            // RES 1, H | ----
+            0x8C => unimplemented!(),
+            // RES 1, L | ----
+            0x8D => unimplemented!(),
+            // RES 1, (HL) | ----
+            0x8E => unimplemented!(),
+            // RES 1, A | ----
+            0x8F => unimplemented!(),
+            // RES 2, B | ----
+            0x90 => unimplemented!(),
+            // RES 2, C | ----
+            0x91 => unimplemented!(),
+            // RES 2, D | ----
+            0x92 => unimplemented!(),
+            // RES 2, E | ----
+            0x93 => unimplemented!(),
+            // RES 2, H | ----
+            0x94 => unimplemented!(),
+            // RES 2, L | ----
+            0x95 => unimplemented!(),
+            // RES 2, (HL) | ----
+            0x96 => unimplemented!(),
+            // RES 2, A | ----
+            0x97 => unimplemented!(),
+            // RES 3, B | ----
+            0x98 => unimplemented!(),
+            // RES 3, C | ----
+            0x99 => unimplemented!(),
+            // RES 3, D | ----
+            0x9A => unimplemented!(),
+            // RES 3, E | ----
+            0x9B => unimplemented!(),
+            // RES 3, H | ----
+            0x9C => unimplemented!(),
+            // RES 3, L | ----
+            0x9D => unimplemented!(),
+            // RES 3, (HL) | ----
+            0x9E => unimplemented!(),
+            // RES 3, A | ----
+            0x9F => unimplemented!(),
+            // RES 4, B | ----
+            0xA0 => unimplemented!(),
+            // RES 4, C | ----
+            0xA1 => unimplemented!(),
+            // RES 4, D | ----
+            0xA2 => unimplemented!(),
+            // RES 4, E | ----
+            0xA3 => unimplemented!(),
+            // RES 4, H | ----
+            0xA4 => unimplemented!(),
+            // RES 4, L | ----
+            0xA5 => unimplemented!(),
+            // RES 4, (HL) | ----
+            0xA6 => unimplemented!(),
+            // RES 4, A | ----
+            0xA7 => unimplemented!(),
+            // RES 5, B | ----
+            0xA8 => unimplemented!(),
+            // RES 5, C | ----
+            0xA9 => unimplemented!(),
+            // RES 5, D | ----
+            0xAA => unimplemented!(),
+            // RES 5, E | ----
+            0xAB => unimplemented!(),
+            // RES 5, H | ----
+            0xAC => unimplemented!(),
+            // RES 5, L | ----
+            0xAD => unimplemented!(),
+            // RES 5, (HL) | ----
+            0xAE => unimplemented!(),
+            // RES 5, A | ----
+            0xAF => unimplemented!(),
+            // RES 6, B | ----
+            0xB0 => unimplemented!(),
+            // RES 6, C | ----
+            0xB1 => unimplemented!(),
+            // RES 6, D | ----
+            0xB2 => unimplemented!(),
+            // RES 6, E | ----
+            0xB3 => unimplemented!(),
+            // RES 6, H | ----
+            0xB4 => unimplemented!(),
+            // RES 6, L | ----
+            0xB5 => unimplemented!(),
+            // RES 6, (HL) | ----
+            0xB6 => unimplemented!(),
+            // RES 6, A | ----
+            0xB7 => unimplemented!(),
+            // RES 7, B | ----
+            0xB8 => unimplemented!(),
+            // RES 7, C | ----
+            0xB9 => unimplemented!(),
+            // RES 7, D | ----
+            0xBA => unimplemented!(),
+            // RES 7, E | ----
+            0xBB => unimplemented!(),
+            // RES 7, H | ----
+            0xBC => unimplemented!(),
+            // RES 7, L | ----
+            0xBD => unimplemented!(),
+            // RES 7, (HL) | ----
+            0xBE => unimplemented!(),
+            // RES 7, A | ----
+            0xBF => unimplemented!(),
+            // SET 0, B | ----
+            0xC0 => unimplemented!(),
+            // SET 0, C | ----
+            0xC1 => unimplemented!(),
+            // SET 0, D | ----
+            0xC2 => unimplemented!(),
+            // SET 0, E | ----
+            0xC3 => unimplemented!(),
+            // SET 0, H | ----
+            0xC4 => unimplemented!(),
+            // SET 0, L | ----
+            0xC5 => unimplemented!(),
+            // SET 0, (HL) | ----
+            0xC6 => unimplemented!(),
+            // SET 0, A | ----
+            0xC7 => unimplemented!(),
+            // SET 1, B | ----
+            0xC8 => unimplemented!(),
+            // SET 1, C | ----
+            0xC9 => unimplemented!(),
+            // SET 1, D | ----
+            0xCA => unimplemented!(),
+            // SET 1, E | ----
+            0xCB => unimplemented!(),
+            // SET 1, H | ----
+            0xCC => unimplemented!(),
+            // SET 1, L | ----
+            0xCD => unimplemented!(),
+            // SET 1, (HL) | ----
+            0xCE => unimplemented!(),
+            // SET 1, A | ----
+            0xCF => unimplemented!(),
+            // SET 2, B | ----
+            0xD0 => unimplemented!(),
+            // SET 2, C | ----
+            0xD1 => unimplemented!(),
+            // SET 2, D | ----
+            0xD2 => unimplemented!(),
+            // SET 2, E | ----
+            0xD3 => unimplemented!(),
+            // SET 2, H | ----
+            0xD4 => unimplemented!(),
+            // SET 2, L | ----
+            0xD5 => unimplemented!(),
+            // SET 2, (HL) | ----
+            0xD6 => unimplemented!(),
+            // SET 2, A | ----
+            0xD7 => unimplemented!(),
+            // SET 3, B | ----
+            0xD8 => unimplemented!(),
+            // SET 3, C | ----
+            0xD9 => unimplemented!(),
+            // SET 3, D | ----
+            0xDA => unimplemented!(),
+            // SET 3, E | ----
+            0xDB => unimplemented!(),
+            // SET 3, H | ----
+            0xDC => unimplemented!(),
+            // SET 3, L | ----
+            0xDD => unimplemented!(),
+            // SET 3, (HL) | ----
+            0xDE => unimplemented!(),
+            // SET 3, A | ----
+            0xDF => unimplemented!(),
+            // SET 4, B | ----
+            0xE0 => unimplemented!(),
+            // SET 4, C | ----
+            0xE1 => unimplemented!(),
+            // SET 4, D | ----
+            0xE2 => unimplemented!(),
+            // SET 4, E | ----
+            0xE3 => unimplemented!(),
+            // SET 4, H | ----
+            0xE4 => unimplemented!(),
+            // SET 4, L | ----
+            0xE5 => unimplemented!(),
+            // SET 4, (HL) | ----
+            0xE6 => unimplemented!(),
+            // SET 4, A | ----
+            0xE7 => unimplemented!(),
+            // SET 5, B | ----
+            0xE8 => unimplemented!(),
+            // SET 5, C | ----
+            0xE9 => unimplemented!(),
+            // SET 5, D | ----
+            0xEA => unimplemented!(),
+            // SET 5, E | ----
+            0xEB => unimplemented!(),
+            // SET 5, H | ----
+            0xEC => unimplemented!(),
+            // SET 5, L | ----
+            0xED => unimplemented!(),
+            // SET 5, (HL) | ----
+            0xEE => unimplemented!(),
+            // SET 5, A | ----
+            0xEF => unimplemented!(),
+            // SET 6, B | ----
+            0xF0 => unimplemented!(),
+            // SET 6, C | ----
+            0xF1 => unimplemented!(),
+            // SET 6, D | ----
+            0xF2 => unimplemented!(),
+            // SET 6, E | ----
+            0xF3 => unimplemented!(),
+            // SET 6, H | ----
+            0xF4 => unimplemented!(),
+            // SET 6, L | ----
+            0xF5 => unimplemented!(),
+            // SET 6, (HL) | ----
+            0xF6 => unimplemented!(),
+            // SET 6, A | ----
+            0xF7 => unimplemented!(),
+            // SET 7, B | ----
+            0xF8 => unimplemented!(),
+            // SET 7, C | ----
+            0xF9 => unimplemented!(),
+            // SET 7, D | ----
+            0xFA => unimplemented!(),
+            // SET 7, E | ----
+            0xFB => unimplemented!(),
+            // SET 7, H | ----
+            0xFC => unimplemented!(),
+            // SET 7, L | ----
+            0xFD => unimplemented!(),
+            // SET 7, (HL) | ----
+            0xFE => unimplemented!(),
+            // SET 7, A | ----
+            0xFF => unimplemented!(),
         }
     }
 
