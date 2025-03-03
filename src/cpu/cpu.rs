@@ -1114,7 +1114,16 @@ impl CPU {
                 16
             }
             // CALL NZ, a16 | ----
-            0xC4 => unimplemented!(),
+            0xC4 => {
+                let addr = self.fetch16();
+                if !self.registers.flag(Z) {
+                    self.push(self.registers.pc);
+                    self.registers.pc = addr;
+                    24
+                } else {
+                    12
+                }
+            }
             // PUSH BC | ----
             0xC5 => {
                 self.push(self.registers.bc());
@@ -1159,9 +1168,23 @@ impl CPU {
             // PREFIX  | ----
             0xCB => self.cb(),
             // CALL Z, a16 | ----
-            0xCC => unimplemented!(),
+            0xCC => {
+                let addr = self.fetch16();
+                if self.registers.flag(Z) {
+                    self.push(self.registers.pc);
+                    self.registers.pc = addr;
+                    24
+                } else {
+                    12
+                }
+            }
             // CALL a16 | ----
-            0xCD => unimplemented!(),
+            0xCD => {
+                let addr = self.fetch16();
+                self.push(self.registers.pc);
+                self.registers.pc = addr;
+                24
+            }
             // ADC A, n8 | Z0HC
             0xCE => {
                 let value = self.fetch8();
@@ -1202,7 +1225,16 @@ impl CPU {
             // ILLEGAL(0xD3) | ----
             0xD3 => return Err(Error::IllegalInstruction(0xD3)),
             // CALL NC, a16 | ----
-            0xD4 => unimplemented!(),
+            0xD4 => {
+                let addr = self.fetch16();
+                if !self.registers.flag(C) {
+                    self.push(self.registers.pc);
+                    self.registers.pc = addr;
+                    24
+                } else {
+                    12
+                }
+            }
             // PUSH DE | ----
             0xD5 => {
                 self.push(self.registers.de());
@@ -1248,7 +1280,16 @@ impl CPU {
             // ILLEGAL(0xDB) | ----
             0xDB => return Err(Error::IllegalInstruction(0xDB)),
             // CALL C, a16 | ----
-            0xDC => unimplemented!(),
+            0xDC => {
+                let addr = self.fetch16();
+                if self.registers.flag(C) {
+                    self.push(self.registers.pc);
+                    self.registers.pc = addr;
+                    24
+                } else {
+                    12
+                }
+            }
             // ILLEGAL(0xDD) | ----
             0xDD => return Err(Error::IllegalInstruction(0xDD)),
             // SBC A, n8 | Z1HC

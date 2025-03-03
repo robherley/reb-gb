@@ -3,6 +3,8 @@ General Documentation:
 - http://www.codeslinger.co.uk/pages/projects/gameboy.html
 - http://www.codeslinger.co.uk/pages/projects/gameboy/files/GB.pdf (PDF in this directory)
 - https://maru-chang.com/hard/agb/english.htm
+- https://rylev.github.io/DMG-01/public/book/introduction.html
+
 
 Opcodes:
 - https://gbdev.io/gb-opcodes/optables/
