@@ -125,6 +125,9 @@ impl CPU {
             // RLCA  | 000C
             0x07 => {
                 self.registers.a = self.rlc(self.registers.a);
+                flags!(self.registers,
+                    Z: false,
+                );
                 4
             }
             // LD [a16], SP | ----
@@ -166,6 +169,9 @@ impl CPU {
             // RRCA  | 000C
             0x0F => {
                 self.registers.a = self.rrc(self.registers.a);
+                flags!(self.registers,
+                    Z: false,
+                );
                 4
             }
             // STOP n8 | ----
@@ -209,6 +215,9 @@ impl CPU {
             // RLA  | 000C
             0x17 => {
                 self.registers.a = self.rl(self.registers.a);
+                flags!(self.registers,
+                    Z: false,
+                );
                 4
             }
             // JR e8 | ----
@@ -249,6 +258,9 @@ impl CPU {
             // RRA  | 000C
             0x1F => {
                 self.registers.a = self.rr(self.registers.a);
+                flags!(self.registers,
+                    Z: false,
+                );
                 4
             }
             // JR NZ, e8 | ----
@@ -1483,69 +1495,173 @@ impl CPU {
     fn cb(&mut self) -> usize {
         match self.fetch8() {
             // RLC B | Z00C
-            0x00 => unimplemented!(),
+            0x00 => {
+                self.registers.b = self.rlc(self.registers.b);
+                8
+            }
             // RLC C | Z00C
-            0x01 => unimplemented!(),
+            0x01 => {
+                self.registers.c = self.rlc(self.registers.c);
+                8
+            }
             // RLC D | Z00C
-            0x02 => unimplemented!(),
+            0x02 => {
+                self.registers.d = self.rlc(self.registers.d);
+                8
+            }
             // RLC E | Z00C
-            0x03 => unimplemented!(),
+            0x03 => {
+                self.registers.e = self.rlc(self.registers.e);
+                8
+            }
             // RLC H | Z00C
-            0x04 => unimplemented!(),
+            0x04 => {
+                self.registers.h = self.rlc(self.registers.h);
+                8
+            }
             // RLC L | Z00C
-            0x05 => unimplemented!(),
+            0x05 => {
+                self.registers.l = self.rlc(self.registers.l);
+                8
+            }
             // RLC (HL) | Z00C
-            0x06 => unimplemented!(),
+            0x06 => {
+                let value = self.mmu.read8(self.registers.hl());
+                let result = self.rlc(value);
+                self.mmu.write8(self.registers.hl(), result);
+                16
+            }
             // RLC A | Z00C
-            0x07 => unimplemented!(),
+            0x07 => {
+                self.registers.a = self.rlc(self.registers.a);
+                8
+            }
             // RRC B | Z00C
-            0x08 => unimplemented!(),
+            0x08 => {
+                self.registers.b = self.rrc(self.registers.b);
+                8
+            }
             // RRC C | Z00C
-            0x09 => unimplemented!(),
+            0x09 => {
+                self.registers.c = self.rrc(self.registers.c);
+                8
+            }
             // RRC D | Z00C
-            0x0A => unimplemented!(),
+            0x0A => {
+                self.registers.d = self.rrc(self.registers.d);
+                8
+            }
             // RRC E | Z00C
-            0x0B => unimplemented!(),
+            0x0B => {
+                self.registers.e = self.rrc(self.registers.e);
+                8
+            }
             // RRC H | Z00C
-            0x0C => unimplemented!(),
+            0x0C => {
+                self.registers.h = self.rrc(self.registers.h);
+                8
+            }
             // RRC L | Z00C
-            0x0D => unimplemented!(),
+            0x0D => {
+                self.registers.l = self.rrc(self.registers.l);
+                8
+            }
             // RRC (HL) | Z00C
-            0x0E => unimplemented!(),
+            0x0E => {
+                let value = self.mmu.read8(self.registers.hl());
+                let result = self.rrc(value);
+                self.mmu.write8(self.registers.hl(), result);
+                16
+            }
             // RRC A | Z00C
-            0x0F => unimplemented!(),
+            0x0F => {
+                self.registers.a = self.rrc(self.registers.a);
+                8
+            }
             // RL B | Z00C
-            0x10 => unimplemented!(),
+            0x10 => {
+                self.registers.b = self.rl(self.registers.b);
+                8
+            }
             // RL C | Z00C
-            0x11 => unimplemented!(),
+            0x11 => {
+                self.registers.c = self.rl(self.registers.c);
+                8
+            }
             // RL D | Z00C
-            0x12 => unimplemented!(),
+            0x12 => {
+                self.registers.d = self.rl(self.registers.d);
+                8
+            }
             // RL E | Z00C
-            0x13 => unimplemented!(),
+            0x13 => {
+                self.registers.e = self.rl(self.registers.e);
+                8
+            }
             // RL H | Z00C
-            0x14 => unimplemented!(),
+            0x14 => {
+                self.registers.h = self.rl(self.registers.h);
+                8
+            }
             // RL L | Z00C
-            0x15 => unimplemented!(),
+            0x15 => {
+                self.registers.l = self.rl(self.registers.l);
+                8
+            }
             // RL (HL) | Z00C
-            0x16 => unimplemented!(),
+            0x16 => {
+                let value = self.mmu.read8(self.registers.hl());
+                let result = self.rl(value);
+                self.mmu.write8(self.registers.hl(), result);
+                16
+            }
             // RL A | Z00C
-            0x17 => unimplemented!(),
+            0x17 => {
+                self.registers.a = self.rl(self.registers.a);
+                8
+            }
             // RR B | Z00C
-            0x18 => unimplemented!(),
+            0x18 => {
+                self.registers.b = self.rr(self.registers.b);
+                8
+            }
             // RR C | Z00C
-            0x19 => unimplemented!(),
+            0x19 => {
+                self.registers.c = self.rr(self.registers.c);
+                8
+            }
             // RR D | Z00C
-            0x1A => unimplemented!(),
+            0x1A => {
+                self.registers.d = self.rr(self.registers.d);
+                8
+            }
             // RR E | Z00C
-            0x1B => unimplemented!(),
+            0x1B => {
+                self.registers.e = self.rr(self.registers.e);
+                8
+            }
             // RR H | Z00C
-            0x1C => unimplemented!(),
+            0x1C => {
+                self.registers.h = self.rr(self.registers.h);
+                8
+            }
             // RR L | Z00C
-            0x1D => unimplemented!(),
+            0x1D => {
+                self.registers.l = self.rr(self.registers.l);
+                8
+            }
             // RR (HL) | Z00C
-            0x1E => unimplemented!(),
+            0x1E => {
+                let value = self.mmu.read8(self.registers.hl());
+                let result = self.rr(value);
+                self.mmu.write8(self.registers.hl(), result);
+                16
+            }
             // RR A | Z00C
-            0x1F => unimplemented!(),
+            0x1F => {
+                self.registers.a = self.rr(self.registers.a);
+                8
+            }
             // SLA B | Z00C
             0x20 => unimplemented!(),
             // SLA C | Z00C
