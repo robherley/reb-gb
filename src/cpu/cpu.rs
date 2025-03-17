@@ -1747,21 +1747,47 @@ impl CPU {
                 8
             }
             // SWAP B | Z000
-            0x30 => unimplemented!(),
+            0x30 => {
+                self.registers.b = self.swap(self.registers.b);
+                8
+            }
             // SWAP C | Z000
-            0x31 => unimplemented!(),
+            0x31 => {
+                self.registers.c = self.swap(self.registers.c);
+                8
+            }
             // SWAP D | Z000
-            0x32 => unimplemented!(),
+            0x32 => {
+                self.registers.d = self.swap(self.registers.d);
+                8
+            }
             // SWAP E | Z000
-            0x33 => unimplemented!(),
+            0x33 => {
+                self.registers.e = self.swap(self.registers.e);
+                8
+            }
             // SWAP H | Z000
-            0x34 => unimplemented!(),
+            0x34 => {
+                self.registers.h = self.swap(self.registers.h);
+                8
+            }
             // SWAP L | Z000
-            0x35 => unimplemented!(),
+            0x35 => {
+                self.registers.l = self.swap(self.registers.l);
+                8
+            }
             // SWAP (HL) | Z000
-            0x36 => unimplemented!(),
+            0x36 => {
+                let value = self.mmu.read8(self.registers.hl());
+                let result = self.swap(value);
+                self.mmu.write8(self.registers.hl(), result);
+                16
+            }
             // SWAP A | Z000
-            0x37 => unimplemented!(),
+            0x37 => {
+                self.registers.a = self.swap(self.registers.a);
+                8
+            }
             // SRL B | Z00C
             0x38 => unimplemented!(),
             // SRL C | Z00C
@@ -2408,6 +2434,18 @@ impl CPU {
           N: false,
           H: false,
           C: carry
+        );
+        result
+    }
+
+    // Swap upper & lower nibles of n.
+    fn swap(&mut self, value: u8) -> u8 {
+        let result = (value >> 4) | (value << 4);
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: false
         );
         result
     }
@@ -3061,6 +3099,32 @@ mod tests {
     fn test_sla_zero() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.sla(0x00);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_swap() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.swap(0x85);
+        assert_eq!(result, 0x58);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_swap_zero() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.swap(0x00);
         assert_eq!(result, 0x00);
         assert_flags!(cpu,
           Z: true,
