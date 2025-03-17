@@ -2159,133 +2159,349 @@ impl CPU {
                 4
             }
             // RES 0, B | ----
-            0x80 => unimplemented!(),
+            0x80 => {
+                self.registers.b = self.res(0, self.registers.b);
+                8
+            }
             // RES 0, C | ----
-            0x81 => unimplemented!(),
+            0x81 => {
+                self.registers.c = self.res(0, self.registers.c);
+                8
+            }
             // RES 0, D | ----
-            0x82 => unimplemented!(),
+            0x82 => {
+                self.registers.d = self.res(0, self.registers.d);
+                8
+            }
             // RES 0, E | ----
-            0x83 => unimplemented!(),
+            0x83 => {
+                self.registers.e = self.res(0, self.registers.e);
+                8
+            }
             // RES 0, H | ----
-            0x84 => unimplemented!(),
+            0x84 => {
+                self.registers.h = self.res(0, self.registers.h);
+                8
+            }
             // RES 0, L | ----
-            0x85 => unimplemented!(),
+            0x85 => {
+                self.registers.l = self.res(0, self.registers.l);
+                8
+            }
             // RES 0, (HL) | ----
-            0x86 => unimplemented!(),
+            0x86 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.res(0, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // RES 0, A | ----
-            0x87 => unimplemented!(),
+            0x87 => {
+                self.registers.a = self.res(0, self.registers.a);
+                8
+            }
             // RES 1, B | ----
-            0x88 => unimplemented!(),
+            0x88 => {
+                self.registers.b = self.res(1, self.registers.b);
+                8
+            }
             // RES 1, C | ----
-            0x89 => unimplemented!(),
+            0x89 => {
+                self.registers.c = self.res(1, self.registers.c);
+                8
+            }
             // RES 1, D | ----
-            0x8A => unimplemented!(),
+            0x8A => {
+                self.registers.d = self.res(1, self.registers.d);
+                8
+            }
             // RES 1, E | ----
-            0x8B => unimplemented!(),
+            0x8B => {
+                self.registers.e = self.res(1, self.registers.e);
+                8
+            }
             // RES 1, H | ----
-            0x8C => unimplemented!(),
+            0x8C => {
+                self.registers.h = self.res(1, self.registers.h);
+                8
+            }
             // RES 1, L | ----
-            0x8D => unimplemented!(),
+            0x8D => {
+                self.registers.l = self.res(1, self.registers.l);
+                8
+            }
             // RES 1, (HL) | ----
-            0x8E => unimplemented!(),
+            0x8E => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.res(1, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // RES 1, A | ----
-            0x8F => unimplemented!(),
+            0x8F => {
+                self.registers.a = self.res(1, self.registers.a);
+                8
+            }
             // RES 2, B | ----
-            0x90 => unimplemented!(),
+            0x90 => {
+                self.registers.b = self.res(2, self.registers.b);
+                8
+            }
             // RES 2, C | ----
-            0x91 => unimplemented!(),
+            0x91 => {
+                self.registers.c = self.res(2, self.registers.c);
+                8
+            }
             // RES 2, D | ----
-            0x92 => unimplemented!(),
+            0x92 => {
+                self.registers.d = self.res(2, self.registers.d);
+                8
+            }
             // RES 2, E | ----
-            0x93 => unimplemented!(),
+            0x93 => {
+                self.registers.e = self.res(2, self.registers.e);
+                8
+            }
             // RES 2, H | ----
-            0x94 => unimplemented!(),
+            0x94 => {
+                self.registers.h = self.res(2, self.registers.h);
+                8
+            }
             // RES 2, L | ----
-            0x95 => unimplemented!(),
+            0x95 => {
+                self.registers.l = self.res(2, self.registers.l);
+                8
+            }
             // RES 2, (HL) | ----
-            0x96 => unimplemented!(),
+            0x96 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.res(2, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // RES 2, A | ----
-            0x97 => unimplemented!(),
+            0x97 => {
+                self.registers.a = self.res(2, self.registers.a);
+                8
+            }
             // RES 3, B | ----
-            0x98 => unimplemented!(),
+            0x98 => {
+                self.registers.b = self.res(3, self.registers.b);
+                8
+            }
             // RES 3, C | ----
-            0x99 => unimplemented!(),
+            0x99 => {
+                self.registers.c = self.res(3, self.registers.c);
+                8
+            }
             // RES 3, D | ----
-            0x9A => unimplemented!(),
+            0x9A => {
+                self.registers.d = self.res(3, self.registers.d);
+                8
+            }
             // RES 3, E | ----
-            0x9B => unimplemented!(),
+            0x9B => {
+                self.registers.e = self.res(3, self.registers.e);
+                8
+            }
             // RES 3, H | ----
-            0x9C => unimplemented!(),
+            0x9C => {
+                self.registers.h = self.res(3, self.registers.h);
+                8
+            }
             // RES 3, L | ----
-            0x9D => unimplemented!(),
+            0x9D => {
+                self.registers.l = self.res(3, self.registers.l);
+                8
+            }
             // RES 3, (HL) | ----
-            0x9E => unimplemented!(),
+            0x9E => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.res(3, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // RES 3, A | ----
-            0x9F => unimplemented!(),
+            0x9F => {
+                self.registers.a = self.res(3, self.registers.a);
+                8
+            }
             // RES 4, B | ----
-            0xA0 => unimplemented!(),
+            0xA0 => {
+                self.registers.b = self.res(4, self.registers.b);
+                8
+            }
             // RES 4, C | ----
-            0xA1 => unimplemented!(),
+            0xA1 => {
+                self.registers.c = self.res(4, self.registers.c);
+                8
+            }
             // RES 4, D | ----
-            0xA2 => unimplemented!(),
+            0xA2 => {
+                self.registers.d = self.res(4, self.registers.d);
+                8
+            }
             // RES 4, E | ----
-            0xA3 => unimplemented!(),
+            0xA3 => {
+                self.registers.e = self.res(4, self.registers.e);
+                8
+            }
             // RES 4, H | ----
-            0xA4 => unimplemented!(),
+            0xA4 => {
+                self.registers.h = self.res(4, self.registers.h);
+                8
+            }
             // RES 4, L | ----
-            0xA5 => unimplemented!(),
+            0xA5 => {
+                self.registers.l = self.res(4, self.registers.l);
+                8
+            }
             // RES 4, (HL) | ----
-            0xA6 => unimplemented!(),
+            0xA6 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.res(4, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // RES 4, A | ----
-            0xA7 => unimplemented!(),
+            0xA7 => {
+                self.registers.a = self.res(4, self.registers.a);
+                8
+            }
             // RES 5, B | ----
-            0xA8 => unimplemented!(),
+            0xA8 => {
+                self.registers.b = self.res(5, self.registers.b);
+                8
+            }
             // RES 5, C | ----
-            0xA9 => unimplemented!(),
+            0xA9 => {
+                self.registers.c = self.res(5, self.registers.c);
+                8
+            }
             // RES 5, D | ----
-            0xAA => unimplemented!(),
+            0xAA => {
+                self.registers.d = self.res(5, self.registers.d);
+                8
+            }
             // RES 5, E | ----
-            0xAB => unimplemented!(),
+            0xAB => {
+                self.registers.e = self.res(5, self.registers.e);
+                8
+            }
             // RES 5, H | ----
-            0xAC => unimplemented!(),
+            0xAC => {
+                self.registers.h = self.res(5, self.registers.h);
+                8
+            }
             // RES 5, L | ----
-            0xAD => unimplemented!(),
+            0xAD => {
+                self.registers.l = self.res(5, self.registers.l);
+                8
+            }
             // RES 5, (HL) | ----
-            0xAE => unimplemented!(),
+            0xAE => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.res(5, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // RES 5, A | ----
-            0xAF => unimplemented!(),
+            0xAF => {
+                self.registers.a = self.res(5, self.registers.a);
+                8
+            }
             // RES 6, B | ----
-            0xB0 => unimplemented!(),
+            0xB0 => {
+                self.registers.b = self.res(6, self.registers.b);
+                8
+            }
             // RES 6, C | ----
-            0xB1 => unimplemented!(),
+            0xB1 => {
+                self.registers.c = self.res(6, self.registers.c);
+                8
+            }
             // RES 6, D | ----
-            0xB2 => unimplemented!(),
+            0xB2 => {
+                self.registers.d = self.res(6, self.registers.d);
+                8
+            }
             // RES 6, E | ----
-            0xB3 => unimplemented!(),
+            0xB3 => {
+                self.registers.e = self.res(6, self.registers.e);
+                8
+            }
             // RES 6, H | ----
-            0xB4 => unimplemented!(),
+            0xB4 => {
+                self.registers.h = self.res(6, self.registers.h);
+                8
+            }
             // RES 6, L | ----
-            0xB5 => unimplemented!(),
+            0xB5 => {
+                self.registers.l = self.res(6, self.registers.l);
+                8
+            }
             // RES 6, (HL) | ----
-            0xB6 => unimplemented!(),
+            0xB6 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.res(6, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // RES 6, A | ----
-            0xB7 => unimplemented!(),
+            0xB7 => {
+                self.registers.a = self.res(6, self.registers.a);
+                8
+            }
             // RES 7, B | ----
-            0xB8 => unimplemented!(),
+            0xB8 => {
+                self.registers.b = self.res(7, self.registers.b);
+                8
+            }
             // RES 7, C | ----
-            0xB9 => unimplemented!(),
+            0xB9 => {
+                self.registers.c = self.res(7, self.registers.c);
+                8
+            }
             // RES 7, D | ----
-            0xBA => unimplemented!(),
+            0xBA => {
+                self.registers.d = self.res(7, self.registers.d);
+                8
+            }
             // RES 7, E | ----
-            0xBB => unimplemented!(),
+            0xBB => {
+                self.registers.e = self.res(7, self.registers.e);
+                8
+            }
             // RES 7, H | ----
-            0xBC => unimplemented!(),
+            0xBC => {
+                self.registers.h = self.res(7, self.registers.h);
+                8
+            }
             // RES 7, L | ----
-            0xBD => unimplemented!(),
+            0xBD => {
+                self.registers.l = self.res(7, self.registers.l);
+                8
+            }
             // RES 7, (HL) | ----
-            0xBE => unimplemented!(),
+            0xBE => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.res(7, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // RES 7, A | ----
-            0xBF => unimplemented!(),
+            0xBF => {
+                self.registers.a = self.res(7, self.registers.a);
+                8
+            }
             // SET 0, B | ----
             0xC0 => unimplemented!(),
             // SET 0, C | ----
@@ -2697,6 +2913,11 @@ impl CPU {
           N: false,
           H: true
         );
+    }
+
+    // Reset bit in register
+    fn res(&mut self, bit: u8, value: u8) -> u8 {
+        value & !(1 << bit)
     }
 }
 
@@ -3429,5 +3650,12 @@ mod tests {
           N: false,
           H: true
         );
+    }
+
+    #[test]
+    fn test_res() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.res(0, 0x01);
+        assert_eq!(result, 0x00);
     }
 }
