@@ -1789,21 +1789,47 @@ impl CPU {
                 8
             }
             // SRL B | Z00C
-            0x38 => unimplemented!(),
+            0x38 => {
+                self.registers.b = self.srl(self.registers.b);
+                8
+            }
             // SRL C | Z00C
-            0x39 => unimplemented!(),
+            0x39 => {
+                self.registers.c = self.srl(self.registers.c);
+                8
+            }
             // SRL D | Z00C
-            0x3A => unimplemented!(),
+            0x3A => {
+                self.registers.d = self.srl(self.registers.d);
+                8
+            }
             // SRL E | Z00C
-            0x3B => unimplemented!(),
+            0x3B => {
+                self.registers.e = self.srl(self.registers.e);
+                8
+            }
             // SRL H | Z00C
-            0x3C => unimplemented!(),
+            0x3C => {
+                self.registers.h = self.srl(self.registers.h);
+                8
+            }
             // SRL L | Z00C
-            0x3D => unimplemented!(),
+            0x3D => {
+                self.registers.l = self.srl(self.registers.l);
+                8
+            }
             // SRL (HL) | Z00C
-            0x3E => unimplemented!(),
+            0x3E => {
+                let value = self.mmu.read8(self.registers.hl());
+                let result = self.srl(value);
+                self.mmu.write8(self.registers.hl(), result);
+                16
+            }
             // SRL A | Z00C
-            0x3F => unimplemented!(),
+            0x3F => {
+                self.registers.a = self.srl(self.registers.a);
+                8
+            }
             // BIT 0, B | Z01-
             0x40 => unimplemented!(),
             // BIT 0, C | Z01-
@@ -2446,6 +2472,19 @@ impl CPU {
           N: false,
           H: false,
           C: false
+        );
+        result
+    }
+
+    // Shift right into carry. MSB is set to 0.
+    fn srl(&mut self, value: u8) -> u8 {
+        let carry = value & 0x01 != 0;
+        let result = value >> 1;
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: carry
         );
         result
     }
@@ -3125,6 +3164,32 @@ mod tests {
     fn test_swap_zero() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.swap(0x00);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_srl() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.srl(0x85);
+        assert_eq!(result, 0x42);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_srl_zero() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.srl(0x00);
         assert_eq!(result, 0x00);
         assert_flags!(cpu,
           Z: true,
