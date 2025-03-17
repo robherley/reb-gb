@@ -2503,133 +2503,349 @@ impl CPU {
                 8
             }
             // SET 0, B | ----
-            0xC0 => unimplemented!(),
+            0xC0 => {
+                self.registers.b = self.set(0, self.registers.b);
+                8
+            }
             // SET 0, C | ----
-            0xC1 => unimplemented!(),
+            0xC1 => {
+                self.registers.c = self.set(0, self.registers.c);
+                8
+            }
             // SET 0, D | ----
-            0xC2 => unimplemented!(),
+            0xC2 => {
+                self.registers.d = self.set(0, self.registers.d);
+                8
+            }
             // SET 0, E | ----
-            0xC3 => unimplemented!(),
+            0xC3 => {
+                self.registers.e = self.set(0, self.registers.e);
+                8
+            }
             // SET 0, H | ----
-            0xC4 => unimplemented!(),
+            0xC4 => {
+                self.registers.h = self.set(0, self.registers.h);
+                8
+            }
             // SET 0, L | ----
-            0xC5 => unimplemented!(),
+            0xC5 => {
+                self.registers.l = self.set(0, self.registers.l);
+                8
+            }
             // SET 0, (HL) | ----
-            0xC6 => unimplemented!(),
+            0xC6 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.set(0, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // SET 0, A | ----
-            0xC7 => unimplemented!(),
+            0xC7 => {
+                self.registers.a = self.set(0, self.registers.a);
+                8
+            }
             // SET 1, B | ----
-            0xC8 => unimplemented!(),
+            0xC8 => {
+                self.registers.b = self.set(1, self.registers.b);
+                8
+            }
             // SET 1, C | ----
-            0xC9 => unimplemented!(),
+            0xC9 => {
+                self.registers.c = self.set(1, self.registers.c);
+                8
+            }
             // SET 1, D | ----
-            0xCA => unimplemented!(),
+            0xCA => {
+                self.registers.d = self.set(1, self.registers.d);
+                8
+            }
             // SET 1, E | ----
-            0xCB => unimplemented!(),
+            0xCB => {
+                self.registers.e = self.set(1, self.registers.e);
+                8
+            }
             // SET 1, H | ----
-            0xCC => unimplemented!(),
+            0xCC => {
+                self.registers.h = self.set(1, self.registers.h);
+                8
+            }
             // SET 1, L | ----
-            0xCD => unimplemented!(),
+            0xCD => {
+                self.registers.l = self.set(1, self.registers.l);
+                8
+            }
             // SET 1, (HL) | ----
-            0xCE => unimplemented!(),
+            0xCE => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.set(1, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // SET 1, A | ----
-            0xCF => unimplemented!(),
+            0xCF => {
+                self.registers.a = self.set(1, self.registers.a);
+                8
+            }
             // SET 2, B | ----
-            0xD0 => unimplemented!(),
+            0xD0 => {
+                self.registers.b = self.set(2, self.registers.b);
+                8
+            }
             // SET 2, C | ----
-            0xD1 => unimplemented!(),
+            0xD1 => {
+                self.registers.c = self.set(2, self.registers.c);
+                8
+            }
             // SET 2, D | ----
-            0xD2 => unimplemented!(),
+            0xD2 => {
+                self.registers.d = self.set(2, self.registers.d);
+                8
+            }
             // SET 2, E | ----
-            0xD3 => unimplemented!(),
+            0xD3 => {
+                self.registers.e = self.set(2, self.registers.e);
+                8
+            }
             // SET 2, H | ----
-            0xD4 => unimplemented!(),
+            0xD4 => {
+                self.registers.h = self.set(2, self.registers.h);
+                8
+            }
             // SET 2, L | ----
-            0xD5 => unimplemented!(),
+            0xD5 => {
+                self.registers.l = self.set(2, self.registers.l);
+                8
+            }
             // SET 2, (HL) | ----
-            0xD6 => unimplemented!(),
+            0xD6 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.set(2, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // SET 2, A | ----
-            0xD7 => unimplemented!(),
+            0xD7 => {
+                self.registers.a = self.set(2, self.registers.a);
+                8
+            }
             // SET 3, B | ----
-            0xD8 => unimplemented!(),
+            0xD8 => {
+                self.registers.b = self.set(3, self.registers.b);
+                8
+            }
             // SET 3, C | ----
-            0xD9 => unimplemented!(),
+            0xD9 => {
+                self.registers.c = self.set(3, self.registers.c);
+                8
+            }
             // SET 3, D | ----
-            0xDA => unimplemented!(),
+            0xDA => {
+                self.registers.d = self.set(3, self.registers.d);
+                8
+            }
             // SET 3, E | ----
-            0xDB => unimplemented!(),
+            0xDB => {
+                self.registers.e = self.set(3, self.registers.e);
+                8
+            }
             // SET 3, H | ----
-            0xDC => unimplemented!(),
+            0xDC => {
+                self.registers.h = self.set(3, self.registers.h);
+                8
+            }
             // SET 3, L | ----
-            0xDD => unimplemented!(),
+            0xDD => {
+                self.registers.l = self.set(3, self.registers.l);
+                8
+            }
             // SET 3, (HL) | ----
-            0xDE => unimplemented!(),
+            0xDE => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.set(3, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // SET 3, A | ----
-            0xDF => unimplemented!(),
+            0xDF => {
+                self.registers.a = self.set(3, self.registers.a);
+                8
+            }
             // SET 4, B | ----
-            0xE0 => unimplemented!(),
+            0xE0 => {
+                self.registers.b = self.set(4, self.registers.b);
+                8
+            }
             // SET 4, C | ----
-            0xE1 => unimplemented!(),
+            0xE1 => {
+                self.registers.c = self.set(4, self.registers.c);
+                8
+            }
             // SET 4, D | ----
-            0xE2 => unimplemented!(),
+            0xE2 => {
+                self.registers.d = self.set(4, self.registers.d);
+                8
+            }
             // SET 4, E | ----
-            0xE3 => unimplemented!(),
+            0xE3 => {
+                self.registers.e = self.set(4, self.registers.e);
+                8
+            }
             // SET 4, H | ----
-            0xE4 => unimplemented!(),
+            0xE4 => {
+                self.registers.h = self.set(4, self.registers.h);
+                8
+            }
             // SET 4, L | ----
-            0xE5 => unimplemented!(),
+            0xE5 => {
+                self.registers.l = self.set(4, self.registers.l);
+                8
+            }
             // SET 4, (HL) | ----
-            0xE6 => unimplemented!(),
+            0xE6 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.set(4, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // SET 4, A | ----
-            0xE7 => unimplemented!(),
+            0xE7 => {
+                self.registers.a = self.set(4, self.registers.a);
+                8
+            }
             // SET 5, B | ----
-            0xE8 => unimplemented!(),
+            0xE8 => {
+                self.registers.b = self.set(5, self.registers.b);
+                8
+            }
             // SET 5, C | ----
-            0xE9 => unimplemented!(),
+            0xE9 => {
+                self.registers.c = self.set(5, self.registers.c);
+                8
+            }
             // SET 5, D | ----
-            0xEA => unimplemented!(),
+            0xEA => {
+                self.registers.d = self.set(5, self.registers.d);
+                8
+            }
             // SET 5, E | ----
-            0xEB => unimplemented!(),
+            0xEB => {
+                self.registers.e = self.set(5, self.registers.e);
+                8
+            }
             // SET 5, H | ----
-            0xEC => unimplemented!(),
+            0xEC => {
+                self.registers.h = self.set(5, self.registers.h);
+                8
+            }
             // SET 5, L | ----
-            0xED => unimplemented!(),
+            0xED => {
+                self.registers.l = self.set(5, self.registers.l);
+                8
+            }
             // SET 5, (HL) | ----
-            0xEE => unimplemented!(),
+            0xEE => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.set(5, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // SET 5, A | ----
-            0xEF => unimplemented!(),
+            0xEF => {
+                self.registers.a = self.set(5, self.registers.a);
+                8
+            }
             // SET 6, B | ----
-            0xF0 => unimplemented!(),
+            0xF0 => {
+                self.registers.b = self.set(6, self.registers.b);
+                8
+            }
             // SET 6, C | ----
-            0xF1 => unimplemented!(),
+            0xF1 => {
+                self.registers.c = self.set(6, self.registers.c);
+                8
+            }
             // SET 6, D | ----
-            0xF2 => unimplemented!(),
+            0xF2 => {
+                self.registers.d = self.set(6, self.registers.d);
+                8
+            }
             // SET 6, E | ----
-            0xF3 => unimplemented!(),
+            0xF3 => {
+                self.registers.e = self.set(6, self.registers.e);
+                8
+            }
             // SET 6, H | ----
-            0xF4 => unimplemented!(),
+            0xF4 => {
+                self.registers.h = self.set(6, self.registers.h);
+                8
+            }
             // SET 6, L | ----
-            0xF5 => unimplemented!(),
+            0xF5 => {
+                self.registers.l = self.set(6, self.registers.l);
+                8
+            }
             // SET 6, (HL) | ----
-            0xF6 => unimplemented!(),
+            0xF6 => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.set(6, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // SET 6, A | ----
-            0xF7 => unimplemented!(),
+            0xF7 => {
+                self.registers.a = self.set(6, self.registers.a);
+                8
+            }
             // SET 7, B | ----
-            0xF8 => unimplemented!(),
+            0xF8 => {
+                self.registers.b = self.set(7, self.registers.b);
+                8
+            }
             // SET 7, C | ----
-            0xF9 => unimplemented!(),
+            0xF9 => {
+                self.registers.c = self.set(7, self.registers.c);
+                8
+            }
             // SET 7, D | ----
-            0xFA => unimplemented!(),
+            0xFA => {
+                self.registers.d = self.set(7, self.registers.d);
+                8
+            }
             // SET 7, E | ----
-            0xFB => unimplemented!(),
+            0xFB => {
+                self.registers.e = self.set(7, self.registers.e);
+                8
+            }
             // SET 7, H | ----
-            0xFC => unimplemented!(),
+            0xFC => {
+                self.registers.h = self.set(7, self.registers.h);
+                8
+            }
             // SET 7, L | ----
-            0xFD => unimplemented!(),
+            0xFD => {
+                self.registers.l = self.set(7, self.registers.l);
+                8
+            }
             // SET 7, (HL) | ----
-            0xFE => unimplemented!(),
+            0xFE => {
+                let addr = self.registers.hl();
+                let value = self.mmu.read8(addr);
+                let result = self.set(7, value);
+                self.mmu.write8(addr, result);
+                16
+            }
             // SET 7, A | ----
-            0xFF => unimplemented!(),
+            0xFF => {
+                self.registers.a = self.set(7, self.registers.a);
+                8
+            }
         }
     }
 
@@ -2918,6 +3134,11 @@ impl CPU {
     // Reset bit in register
     fn res(&mut self, bit: u8, value: u8) -> u8 {
         value & !(1 << bit)
+    }
+
+    // Set bit in register
+    fn set(&mut self, bit: u8, value: u8) -> u8 {
+        value | (1 << bit)
     }
 }
 
@@ -3657,5 +3878,12 @@ mod tests {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         let result = cpu.res(0, 0x01);
         assert_eq!(result, 0x00);
+    }
+
+    #[test]
+    fn test_set() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.set(0, 0x00);
+        assert_eq!(result, 0x01);
     }
 }
