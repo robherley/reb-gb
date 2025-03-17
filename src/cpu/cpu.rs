@@ -1831,133 +1831,333 @@ impl CPU {
                 8
             }
             // BIT 0, B | Z01-
-            0x40 => unimplemented!(),
+            0x40 => {
+                self.bit(0, self.registers.b);
+                4
+            }
             // BIT 0, C | Z01-
-            0x41 => unimplemented!(),
+            0x41 => {
+                self.bit(0, self.registers.c);
+                4
+            }
             // BIT 0, D | Z01-
-            0x42 => unimplemented!(),
+            0x42 => {
+                self.bit(0, self.registers.d);
+                4
+            }
             // BIT 0, E | Z01-
-            0x43 => unimplemented!(),
+            0x43 => {
+                self.bit(0, self.registers.e);
+                4
+            }
             // BIT 0, H | Z01-
-            0x44 => unimplemented!(),
+            0x44 => {
+                self.bit(0, self.registers.h);
+                4
+            }
             // BIT 0, L | Z01-
-            0x45 => unimplemented!(),
+            0x45 => {
+                self.bit(0, self.registers.l);
+                4
+            }
             // BIT 0, (HL) | Z01-
-            0x46 => unimplemented!(),
+            0x46 => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.bit(0, value);
+                8
+            }
             // BIT 0, A | Z01-
-            0x47 => unimplemented!(),
+            0x47 => {
+                self.bit(0, self.registers.a);
+                4
+            }
             // BIT 1, B | Z01-
-            0x48 => unimplemented!(),
+            0x48 => {
+                self.bit(1, self.registers.b);
+                4
+            }
             // BIT 1, C | Z01-
-            0x49 => unimplemented!(),
+            0x49 => {
+                self.bit(1, self.registers.c);
+                4
+            }
             // BIT 1, D | Z01-
-            0x4A => unimplemented!(),
+            0x4A => {
+                self.bit(1, self.registers.d);
+                4
+            }
             // BIT 1, E | Z01-
-            0x4B => unimplemented!(),
+            0x4B => {
+                self.bit(1, self.registers.e);
+                4
+            }
             // BIT 1, H | Z01-
-            0x4C => unimplemented!(),
+            0x4C => {
+                self.bit(1, self.registers.h);
+                4
+            }
             // BIT 1, L | Z01-
-            0x4D => unimplemented!(),
+            0x4D => {
+                self.bit(1, self.registers.l);
+                4
+            }
             // BIT 1, (HL) | Z01-
-            0x4E => unimplemented!(),
+            0x4E => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.bit(1, value);
+                8
+            }
             // BIT 1, A | Z01-
-            0x4F => unimplemented!(),
+            0x4F => {
+                self.bit(1, self.registers.a);
+                4
+            }
             // BIT 2, B | Z01-
-            0x50 => unimplemented!(),
+            0x50 => {
+                self.bit(2, self.registers.b);
+                4
+            }
             // BIT 2, C | Z01-
-            0x51 => unimplemented!(),
+            0x51 => {
+                self.bit(2, self.registers.c);
+                4
+            }
             // BIT 2, D | Z01-
-            0x52 => unimplemented!(),
+            0x52 => {
+                self.bit(2, self.registers.d);
+                4
+            }
             // BIT 2, E | Z01-
-            0x53 => unimplemented!(),
+            0x53 => {
+                self.bit(2, self.registers.e);
+                4
+            }
             // BIT 2, H | Z01-
-            0x54 => unimplemented!(),
+            0x54 => {
+                self.bit(2, self.registers.h);
+                4
+            }
             // BIT 2, L | Z01-
-            0x55 => unimplemented!(),
+            0x55 => {
+                self.bit(2, self.registers.l);
+                4
+            }
             // BIT 2, (HL) | Z01-
-            0x56 => unimplemented!(),
+            0x56 => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.bit(2, value);
+                8
+            }
             // BIT 2, A | Z01-
-            0x57 => unimplemented!(),
+            0x57 => {
+                self.bit(2, self.registers.a);
+                4
+            }
             // BIT 3, B | Z01-
-            0x58 => unimplemented!(),
+            0x58 => {
+                self.bit(3, self.registers.b);
+                4
+            }
             // BIT 3, C | Z01-
-            0x59 => unimplemented!(),
+            0x59 => {
+                self.bit(3, self.registers.c);
+                4
+            }
             // BIT 3, D | Z01-
-            0x5A => unimplemented!(),
+            0x5A => {
+                self.bit(3, self.registers.d);
+                4
+            }
             // BIT 3, E | Z01-
-            0x5B => unimplemented!(),
+            0x5B => {
+                self.bit(3, self.registers.e);
+                4
+            }
             // BIT 3, H | Z01-
-            0x5C => unimplemented!(),
+            0x5C => {
+                self.bit(3, self.registers.h);
+                4
+            }
             // BIT 3, L | Z01-
-            0x5D => unimplemented!(),
+            0x5D => {
+                self.bit(3, self.registers.l);
+                4
+            }
             // BIT 3, (HL) | Z01-
-            0x5E => unimplemented!(),
+            0x5E => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.bit(3, value);
+                8
+            }
             // BIT 3, A | Z01-
-            0x5F => unimplemented!(),
+            0x5F => {
+                self.bit(3, self.registers.a);
+                4
+            }
             // BIT 4, B | Z01-
-            0x60 => unimplemented!(),
+            0x60 => {
+                self.bit(4, self.registers.b);
+                4
+            }
             // BIT 4, C | Z01-
-            0x61 => unimplemented!(),
+            0x61 => {
+                self.bit(4, self.registers.c);
+                4
+            }
             // BIT 4, D | Z01-
-            0x62 => unimplemented!(),
+            0x62 => {
+                self.bit(4, self.registers.d);
+                4
+            }
             // BIT 4, E | Z01-
-            0x63 => unimplemented!(),
+            0x63 => {
+                self.bit(4, self.registers.e);
+                4
+            }
             // BIT 4, H | Z01-
-            0x64 => unimplemented!(),
+            0x64 => {
+                self.bit(4, self.registers.h);
+                4
+            }
             // BIT 4, L | Z01-
-            0x65 => unimplemented!(),
+            0x65 => {
+                self.bit(4, self.registers.l);
+                4
+            }
             // BIT 4, (HL) | Z01-
-            0x66 => unimplemented!(),
+            0x66 => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.bit(4, value);
+                8
+            }
             // BIT 4, A | Z01-
-            0x67 => unimplemented!(),
+            0x67 => {
+                self.bit(4, self.registers.a);
+                4
+            }
             // BIT 5, B | Z01-
-            0x68 => unimplemented!(),
+            0x68 => {
+                self.bit(5, self.registers.b);
+                4
+            }
             // BIT 5, C | Z01-
-            0x69 => unimplemented!(),
+            0x69 => {
+                self.bit(5, self.registers.c);
+                4
+            }
             // BIT 5, D | Z01-
-            0x6A => unimplemented!(),
+            0x6A => {
+                self.bit(5, self.registers.d);
+                4
+            }
             // BIT 5, E | Z01-
-            0x6B => unimplemented!(),
+            0x6B => {
+                self.bit(5, self.registers.e);
+                4
+            }
             // BIT 5, H | Z01-
-            0x6C => unimplemented!(),
+            0x6C => {
+                self.bit(5, self.registers.h);
+                4
+            }
             // BIT 5, L | Z01-
-            0x6D => unimplemented!(),
+            0x6D => {
+                self.bit(5, self.registers.l);
+                4
+            }
             // BIT 5, (HL) | Z01-
-            0x6E => unimplemented!(),
+            0x6E => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.bit(5, value);
+                8
+            }
             // BIT 5, A | Z01-
-            0x6F => unimplemented!(),
+            0x6F => {
+                self.bit(5, self.registers.a);
+                4
+            }
             // BIT 6, B | Z01-
-            0x70 => unimplemented!(),
+            0x70 => {
+                self.bit(6, self.registers.b);
+                4
+            }
             // BIT 6, C | Z01-
-            0x71 => unimplemented!(),
+            0x71 => {
+                self.bit(6, self.registers.c);
+                4
+            }
             // BIT 6, D | Z01-
-            0x72 => unimplemented!(),
+            0x72 => {
+                self.bit(6, self.registers.d);
+                4
+            }
             // BIT 6, E | Z01-
-            0x73 => unimplemented!(),
+            0x73 => {
+                self.bit(6, self.registers.e);
+                4
+            }
             // BIT 6, H | Z01-
-            0x74 => unimplemented!(),
+            0x74 => {
+                self.bit(6, self.registers.h);
+                4
+            }
             // BIT 6, L | Z01-
-            0x75 => unimplemented!(),
+            0x75 => {
+                self.bit(6, self.registers.l);
+                4
+            }
             // BIT 6, (HL) | Z01-
-            0x76 => unimplemented!(),
+            0x76 => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.bit(6, value);
+                8
+            }
             // BIT 6, A | Z01-
-            0x77 => unimplemented!(),
+            0x77 => {
+                self.bit(6, self.registers.a);
+                4
+            }
             // BIT 7, B | Z01-
-            0x78 => unimplemented!(),
+            0x78 => {
+                self.bit(7, self.registers.b);
+                4
+            }
             // BIT 7, C | Z01-
-            0x79 => unimplemented!(),
+            0x79 => {
+                self.bit(7, self.registers.c);
+                4
+            }
             // BIT 7, D | Z01-
-            0x7A => unimplemented!(),
+            0x7A => {
+                self.bit(7, self.registers.d);
+                4
+            }
             // BIT 7, E | Z01-
-            0x7B => unimplemented!(),
+            0x7B => {
+                self.bit(7, self.registers.e);
+                4
+            }
             // BIT 7, H | Z01-
-            0x7C => unimplemented!(),
+            0x7C => {
+                self.bit(7, self.registers.h);
+                4
+            }
             // BIT 7, L | Z01-
-            0x7D => unimplemented!(),
+            0x7D => {
+                self.bit(7, self.registers.l);
+                4
+            }
             // BIT 7, (HL) | Z01-
-            0x7E => unimplemented!(),
+            0x7E => {
+                let value = self.mmu.read8(self.registers.hl());
+                self.bit(7, value);
+                8
+            }
             // BIT 7, A | Z01-
-            0x7F => unimplemented!(),
+            0x7F => {
+                self.bit(7, self.registers.a);
+                4
+            }
             // RES 0, B | ----
             0x80 => unimplemented!(),
             // RES 0, C | ----
@@ -2487,6 +2687,16 @@ impl CPU {
           C: carry
         );
         result
+    }
+
+    // Test bit in register
+    fn bit(&mut self, bit: u8, value: u8) {
+        let result = value & (1 << bit);
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: true
+        );
     }
 }
 
@@ -3196,6 +3406,28 @@ mod tests {
           N: false,
           H: false,
           C: false
+        );
+    }
+
+    #[test]
+    fn test_bit() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.bit(0, 0x01);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: true
+        );
+    }
+
+    #[test]
+    fn test_bit_zero() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.bit(0, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: true
         );
     }
 }
