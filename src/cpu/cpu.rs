@@ -1663,37 +1663,89 @@ impl CPU {
                 8
             }
             // SLA B | Z00C
-            0x20 => unimplemented!(),
+            0x20 => {
+                self.registers.b = self.sla(self.registers.b);
+                8
+            }
             // SLA C | Z00C
-            0x21 => unimplemented!(),
+            0x21 => {
+                self.registers.c = self.sla(self.registers.c);
+                8
+            }
             // SLA D | Z00C
-            0x22 => unimplemented!(),
+            0x22 => {
+                self.registers.d = self.sla(self.registers.d);
+                8
+            }
             // SLA E | Z00C
-            0x23 => unimplemented!(),
+            0x23 => {
+                self.registers.e = self.sla(self.registers.e);
+                8
+            }
             // SLA H | Z00C
-            0x24 => unimplemented!(),
+            0x24 => {
+                self.registers.h = self.sla(self.registers.h);
+                8
+            }
             // SLA L | Z00C
-            0x25 => unimplemented!(),
+            0x25 => {
+                self.registers.l = self.sla(self.registers.l);
+                8
+            }
             // SLA (HL) | Z00C
-            0x26 => unimplemented!(),
+            0x26 => {
+                let value = self.mmu.read8(self.registers.hl());
+                let result = self.sla(value);
+                self.mmu.write8(self.registers.hl(), result);
+                16
+            }
             // SLA A | Z00C
-            0x27 => unimplemented!(),
+            0x27 => {
+                self.registers.a = self.sla(self.registers.a);
+                8
+            }
             // SRA B | Z00C
-            0x28 => unimplemented!(),
+            0x28 => {
+                self.registers.b = self.sra(self.registers.b);
+                8
+            }
             // SRA C | Z00C
-            0x29 => unimplemented!(),
+            0x29 => {
+                self.registers.c = self.sra(self.registers.c);
+                8
+            }
             // SRA D | Z00C
-            0x2A => unimplemented!(),
+            0x2A => {
+                self.registers.d = self.sra(self.registers.d);
+                8
+            }
             // SRA E | Z00C
-            0x2B => unimplemented!(),
+            0x2B => {
+                self.registers.e = self.sra(self.registers.e);
+                8
+            }
             // SRA H | Z00C
-            0x2C => unimplemented!(),
+            0x2C => {
+                self.registers.h = self.sra(self.registers.h);
+                8
+            }
             // SRA L | Z00C
-            0x2D => unimplemented!(),
+            0x2D => {
+                self.registers.l = self.sra(self.registers.l);
+                8
+            }
             // SRA (HL) | Z00C
-            0x2E => unimplemented!(),
+            0x2E => {
+                let value = self.mmu.read8(self.registers.hl());
+                let result = self.sra(value);
+                self.mmu.write8(self.registers.hl(), result);
+                16
+            }
             // SRA A | Z00C
-            0x2F => unimplemented!(),
+            0x2F => {
+                self.registers.a = self.sra(self.registers.a);
+                8
+            }
             // SWAP B | Z000
             0x30 => unimplemented!(),
             // SWAP C | Z000
@@ -2333,6 +2385,32 @@ impl CPU {
             C: offset >= 0x60
         );
     }
+
+    // Shift right into carry. The most significant bit remains the same.
+    fn sra(&mut self, value: u8) -> u8 {
+        let carry = value & 0x01 != 0;
+        let result = (value >> 1) | (value & 0x80);
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: carry
+        );
+        result
+    }
+
+    // Shift left into carry. The most significant bit is set to 0.
+    fn sla(&mut self, value: u8) -> u8 {
+        let carry = value & 0x80 != 0;
+        let result = value << 1;
+        flags!(self.registers,
+          Z: result == 0,
+          N: false,
+          H: false,
+          C: carry
+        );
+        result
+    }
 }
 
 #[cfg(test)]
@@ -2937,6 +3015,58 @@ mod tests {
           N: true,
           H: false,
           C: true
+        );
+    }
+
+    #[test]
+    fn test_sra() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.sra(0x85);
+        assert_eq!(result, 0xC2);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_sra_zero() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.sra(0x00);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: false,
+          C: false
+        );
+    }
+
+    #[test]
+    fn test_sla() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.sla(0x85);
+        assert_eq!(result, 0x0A);
+        assert_flags!(cpu,
+          Z: false,
+          N: false,
+          H: false,
+          C: true
+        );
+    }
+
+    #[test]
+    fn test_sla_zero() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        let result = cpu.sla(0x00);
+        assert_eq!(result, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: false,
+          C: false
         );
     }
 }
