@@ -1,5 +1,13 @@
 use crate::cartridge::Cartridge;
 
+// Fixed size of each memory region
+const WRAM_SIZE: usize = 0x2000;
+const HRAM_SIZE: usize = 0x80;
+
+// Offsets of where the memory region starts
+const WRAM_OFFSET: u16 = 0xC000;
+const HRAM_OFFSET: u16 = 0xFF80;
+
 pub trait RW {
     fn read(&self, address: u16) -> u8;
     fn write(&mut self, address: u16, value: u8);
@@ -11,6 +19,8 @@ pub struct Memory {
     pub iflag: ByteRW,
     pub noop: NoopRW,
     pub serial: SerialRW,
+    pub wram: Ram,
+    pub hram: Ram,
 }
 
 impl Memory {
@@ -21,6 +31,8 @@ impl Memory {
             iflag: ByteRW::default(),
             noop: NoopRW::new(false),
             serial: SerialRW::default(),
+            wram: Ram::new(WRAM_SIZE, WRAM_OFFSET),
+            hram: Ram::new(HRAM_SIZE, HRAM_OFFSET),
         }
     }
 
@@ -38,7 +50,7 @@ impl Memory {
             0xA000..=0xBFFF => &mut self.cartridge,
             // 0xC000 - 0xCFFF : RAM Bank 0
             // 0xD000 - 0xDFFF : RAM Bank 1-7 - switchable - Color only
-            0xC000..=0xDFFF => &mut self.noop, // TODO(robherley): implement WRAM
+            0xC000..=0xDFFF => &mut self.wram,
             // 0xE000 - 0xFDFF : Reserved - Echo RAM
             0xE000..=0xFDFF => panic!("reserved echo memory access: {:#06x}", address),
             // 0xFE00 - 0xFE9F : Object Attribute Memory
@@ -71,7 +83,7 @@ impl Memory {
             // 0xFF70 : WRAM Bank Select
             0xFF70 => &mut self.noop, // TODO(robherley): implement WRAM bank select
             // 0xFF80 - 0xFFFE : Zero Page (HRAM)
-            0xFF80..=0xFFFE => &mut self.noop, // TODO(robherley): implement HRAM
+            0xFF80..=0xFFFE => &mut self.hram,
             // 0xFFFF : Interrupt enable register
             0xFFFF => &mut self.ienable,
             _ => unimplemented!("unimplemented memory access: {:#06x}", address),
@@ -184,5 +196,29 @@ impl RW for SerialRW {
             0xFF02 => self.control = value,
             _ => panic!("invalid serial write: {:#06x}", address),
         }
+    }
+}
+
+pub struct Ram {
+    memory: Vec<u8>,
+    offset: u16,
+}
+
+impl Ram {
+    pub fn new(size: usize, offset: u16) -> Self {
+        Ram {
+            memory: vec![0; size],
+            offset,
+        }
+    }
+}
+
+impl RW for Ram {
+    fn read(&self, address: u16) -> u8 {
+        self.memory[(address - self.offset) as usize]
+    }
+
+    fn write(&mut self, address: u16, value: u8) {
+        self.memory[(address - self.offset) as usize] = value;
     }
 }

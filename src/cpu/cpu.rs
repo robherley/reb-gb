@@ -47,6 +47,7 @@ impl CPU {
 
     pub fn boot(&mut self) {
         loop {
+            self.debug();
             self.interrupts.update();
 
             if self.interrupts.ime {
@@ -69,6 +70,10 @@ impl CPU {
         }
     }
 
+    fn debug(&self) {
+        println!("{:?} ", self.registers);
+    }
+
     fn interrupt(&mut self) {
         // TODO(robherley): handle interrupts
     }
@@ -88,7 +93,8 @@ impl CPU {
     /// Executes the next instruction and returns the number of t-cycles (system clock ticks) it took.
     /// https://gbdev.io/gb-opcodes/optables/
     fn next(&mut self) -> Result<usize, Error> {
-        let cycles = match self.fetch8() {
+        let instruction = self.fetch8();
+        let cycles = match instruction {
             // NOP  | ----
             0x00 => 4,
             // LD BC, n16 | ----
