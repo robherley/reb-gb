@@ -93,8 +93,7 @@ impl CPU {
     /// Executes the next instruction and returns the number of t-cycles (system clock ticks) it took.
     /// https://gbdev.io/gb-opcodes/optables/
     fn next(&mut self) -> Result<usize, Error> {
-        let instruction = self.fetch8();
-        let cycles = match instruction {
+        let cycles = match self.fetch8() {
             // NOP  | ----
             0x00 => 4,
             // LD BC, n16 | ----
@@ -228,7 +227,7 @@ impl CPU {
             }
             // JR e8 | ----
             0x18 => {
-                self.jr();
+                self.jr(true);
                 8
             }
             // ADD HL, DE | -0HC
@@ -271,11 +270,10 @@ impl CPU {
             }
             // JR NZ, e8 | ----
             0x20 => {
-                if self.registers.flag(Z) {
-                    8
-                } else {
-                    self.jr();
+                if self.jr(!self.registers.flag(Z)) {
                     12
+                } else {
+                    8
                 }
             }
             // LD HL, n16 | ----
@@ -318,8 +316,7 @@ impl CPU {
             }
             // JR Z, e8 | ----
             0x28 => {
-                if self.registers.flag(Z) {
-                    self.jr();
+                if self.jr(self.registers.flag(Z)) {
                     12
                 } else {
                     8
@@ -368,11 +365,10 @@ impl CPU {
             }
             // JR NC, e8 | ----
             0x30 => {
-                if self.registers.flag(C) {
-                    8
-                } else {
-                    self.jr();
+                if self.jr(!self.registers.flag(C)) {
                     12
+                } else {
+                    8
                 }
             }
             // LD SP, n16 | ----
@@ -425,8 +421,7 @@ impl CPU {
             }
             // JR C, e8 | ----
             0x38 => {
-                if self.registers.flag(C) {
-                    self.jr();
+                if self.jr(self.registers.flag(C)) {
                     12
                 } else {
                     8
@@ -3041,10 +3036,15 @@ impl CPU {
     }
 
     // Relative jump.
-    // Add n to current address and jump to it.
-    fn jr(&mut self) {
-        let value = self.fetch8();
-        self.registers.pc = self.registers.pc.wrapping_add(value as u16);
+    // Add n (signed) to current address and jump to it.
+    // Returns if jump was taken.
+    fn jr(&mut self, condition: bool) -> bool {
+        let value = self.fetch8() as i8; // all JR instructions are signed
+        if !condition {
+            return false;
+        }
+        self.registers.pc = self.registers.pc.wrapping_add(value as i16 as u16);
+        true
     }
 
     // Decimal adjust register A. This instruction adjusts register A so that the correct representation of Binary
