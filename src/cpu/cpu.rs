@@ -18,14 +18,8 @@ pub enum Model {
     DMG,
     /// Game Boy Pocket
     MGB,
-    // /// Game Boy Color
-    // CGB,
-    // /// Super Game Boy
-    // SGB,
-    // /// Super Game Boy 2
-    // SGB2,
-    // /// Gameboy Advance
-    // AGB,
+    /// For test ROM debugging
+    DEBUG,
 }
 
 pub struct CPU {
@@ -45,9 +39,15 @@ impl CPU {
         }
     }
 
+    pub fn debug_mode(&mut self, enable: bool) {
+        self.mmu.debug = enable;
+    }
+
     pub fn boot(&mut self) {
         loop {
-            self.debug();
+            if self.mmu.debug {
+                self.debug();
+            }
             self.interrupts.update();
 
             if self.interrupts.ime {
@@ -67,11 +67,30 @@ impl CPU {
                     return;
                 }
             }
+
+            self.mmu.debug_serial();
         }
     }
 
-    fn debug(&self) {
-        println!("{:?} ", self.registers);
+    fn debug(&mut self) {
+        // https://github.com/robert/gameboy-doctor
+        println!(
+            "A:{:02X} F:{:02X} B:{:02X} C:{:02X} D:{:02X} E:{:02X} H:{:02X} L:{:02X} SP:{:04X} PC:{:04X} PCMEM:{:02X},{:02X},{:02X},{:02X}",
+            self.registers.a,
+            self.registers.f,
+            self.registers.b,
+            self.registers.c,
+            self.registers.d,
+            self.registers.e,
+            self.registers.h,
+            self.registers.l,
+            self.registers.sp,
+            self.registers.pc,
+            self.mmu.read8(self.registers.pc),
+            self.mmu.read8(self.registers.pc.wrapping_add(1)),
+            self.mmu.read8(self.registers.pc.wrapping_add(2)),
+            self.mmu.read8(self.registers.pc.wrapping_add(3)),
+        );
     }
 
     fn interrupt(&mut self) {
@@ -204,7 +223,7 @@ impl CPU {
             }
             // INC D | Z0H-
             0x14 => {
-                self.registers.c = self.inc8(self.registers.d);
+                self.registers.d = self.inc8(self.registers.d);
                 4
             }
             // DEC D | Z1H-

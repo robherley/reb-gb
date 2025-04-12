@@ -21,6 +21,10 @@ pub struct Memory {
     pub serial: SerialRW,
     pub wram: Ram,
     pub hram: Ram,
+    pub debug: bool,
+
+    // TODO(robherley): cleanup after test rom debugging
+    pub tmp_dummy_lcd: ByteRW,
 }
 
 impl Memory {
@@ -33,10 +37,27 @@ impl Memory {
             serial: SerialRW::default(),
             wram: Ram::new(WRAM_SIZE, WRAM_OFFSET),
             hram: Ram::new(HRAM_SIZE, HRAM_OFFSET),
+            tmp_dummy_lcd: ByteRW::new(0x90, true),
+            debug: false,
+        }
+    }
+
+    pub fn debug_serial(&mut self) {
+        if !self.debug {
+            return;
+        }
+
+        if self.serial.control == 0x81 {
+            eprint!("{}", self.serial.transfer as char);
+            self.serial.control = 0x00;
         }
     }
 
     pub fn map(&mut self, address: u16) -> &mut dyn RW {
+        if self.debug && address == 0xFF44 {
+            return &mut self.tmp_dummy_lcd;
+        }
+
         // https://gbdev.io/pandocs/Memory_Map.html
         match address {
             // 0x0000 - 0x3FFF : ROM Bank 0
@@ -45,7 +66,7 @@ impl Memory {
             // 0x8000 - 0x97FF : CHR RAM
             // 0x9800 - 0x9BFF : BG Map 1
             // 0x9C00 - 0x9FFF : BG Map 2
-            0x8000..=0x97FF => &mut self.noop, // TODO(robherley): implement char map
+            0x8000..=0x9FFF => &mut self.noop, // TODO(robherley): implement char map
             // 0xA000 - 0xBFFF : Cartridge RAM
             0xA000..=0xBFFF => &mut self.cartridge,
             // 0xC000 - 0xCFFF : RAM Bank 0
@@ -114,17 +135,21 @@ impl Memory {
 
 pub struct ByteRW {
     pub value: u8,
+    pub read_only: bool,
 }
 
 impl ByteRW {
-    pub fn new(value: u8) -> Self {
-        ByteRW { value }
+    pub fn new(value: u8, read_only: bool) -> Self {
+        ByteRW { value, read_only }
     }
 }
 
 impl Default for ByteRW {
     fn default() -> Self {
-        ByteRW { value: 0 }
+        ByteRW {
+            value: 0,
+            read_only: false,
+        }
     }
 }
 
@@ -134,6 +159,9 @@ impl RW for ByteRW {
     }
 
     fn write(&mut self, _address: u16, value: u8) {
+        if self.read_only {
+            return;
+        }
         self.value = value;
     }
 }

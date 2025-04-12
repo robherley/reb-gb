@@ -239,11 +239,8 @@ impl mmu::RW for Cartridge {
         self.rom[address as usize]
     }
 
-    fn write(&mut self, address: u16, value: u8) {
-        unreachable!(
-            "write to cartridge: address: {:#06x}, value: {:#04x}",
-            address, value
-        );
+    fn write(&mut self, _address: u16, _value: u8) {
+        // TODO(robherley): revisit
     }
 }
 

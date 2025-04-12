@@ -99,7 +99,10 @@ impl Registers {
                     registers.set_flag(Flags::H, true);
                     registers.set_flag(Flags::C, true);
                 }
-            } // TODO(robherley): implement the other models
+            }
+            Model::DEBUG => {
+                registers.f = 0xB0;
+            }
         }
 
         registers
