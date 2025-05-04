@@ -1378,14 +1378,14 @@ impl CPU {
             }
             // ADD SP, e8 | 00HC
             0xE8 => {
-                let value = self.fetch8() as u16;
+                let value = self.fetch8() as i8 as i16 as u16;
                 let sp = self.registers.sp;
                 self.registers.sp = sp.wrapping_add(value);
                 flags!(self.registers,
                     Z: false,
                     N: false,
-                    H: (sp & 0x0FFF) + (value & 0x0FFF) > 0x0FFF,
-                    C: (sp as u32 + value as u32) > 0xFFFF
+                    H: (sp & 0xF) + (value & 0xF) > 0xF,
+                    C: (sp & 0xFF) + (value & 0xFF) > 0xFF
                 );
                 16
             }
@@ -1462,15 +1462,15 @@ impl CPU {
             }
             // LD HL, SP, e8 | 00HC
             0xF8 => {
-                let value = self.fetch8() as u16;
+                let value = self.fetch8() as i8 as i16 as u16;
                 let sp = self.registers.sp;
                 let result = sp.wrapping_add(value);
                 self.registers.set_hl(result);
                 flags!(self.registers,
                     Z: false,
                     N: false,
-                    H: (sp & 0x0FFF) + (value & 0x0FFF) > 0x0FFF,
-                    C: (sp as u32 + value as u32) > 0xFFFF
+                    H: (sp & 0xF) + (value & 0xF) > 0xF,
+                    C: (sp & 0xFF) + (value & 0xFF) > 0xFF
                 );
 
                 12
