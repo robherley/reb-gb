@@ -4,7 +4,7 @@ use reb_gb::{
 };
 
 fn main() {
-    let rom = include_bytes!("../tmp/gb-test-roms/cpu_instrs/individual/03-op sp,hl.gb").to_vec();
+    let rom = include_bytes!("../tmp/gb-test-roms/cpu_instrs/individual/02-interrupts.gb").to_vec();
     let cartridge = Cartridge::new(rom);
     pretty_print(&cartridge);
 

@@ -48,13 +48,18 @@ impl CPU {
             if self.mmu.debug {
                 self.debug();
             }
+
             self.interrupts.update();
 
-            if self.interrupts.ime {
-                self.interrupt();
+            if let Some((src, addr)) = self
+                .interrupts
+                .requested(self.mmu.ienable.value, self.mmu.iflag.value)
+            {
+                self.interrupt(src, addr);
             }
 
             if self.halted {
+                // TODO(robherley): cycle while halted
                 continue;
             }
 
@@ -93,8 +98,17 @@ impl CPU {
         );
     }
 
-    fn interrupt(&mut self) {
-        // TODO(robherley): handle interrupts
+    fn interrupt(&mut self, src: u8, addr: u16) {
+        // 1. push program counter to stack
+        self.push(self.registers.pc);
+        // 2. set program counter to mapped interrupt address
+        self.registers.pc = addr;
+        // 3. clear interrupt flag for type
+        self.mmu.iflag.value &= !(src);
+        // 4. unhalt cpu
+        self.halted = false;
+        // 5. disable all interrupts
+        self.interrupts.ime = false;
     }
 
     fn fetch8(&mut self) -> u8 {
