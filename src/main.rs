@@ -1,13 +1,21 @@
+use std::sync::LazyLock;
+
 use reb_gb::{
     cartridge::Cartridge,
     cpu::{Model, CPU},
 };
 
+// TODO(robherley): tmp load rom at runtime so build in CI (where this rom might not exist) passes
+static ROM_DATA: LazyLock<Vec<u8>> = LazyLock::new(|| {
+    std::fs::read("tmp/gb-test-roms/cpu_instrs/individual/02-interrupts.gb")
+        .expect("Failed to read ROM file")
+});
+
 fn main() {
     // 04 - CE DE | Failed
     // 09 - 88 89 8A 8B 8C 8D 8F 98 99 9A 9B 9C 9D 9F | Failed
     // 11 - 8E 9E | Failed
-    let rom = include_bytes!("../tmp/gb-test-roms/cpu_instrs/individual/02-interrupts.gb").to_vec();
+    let rom = ROM_DATA.clone();
     let cartridge = Cartridge::new(rom);
     pretty_print(&cartridge);
 
