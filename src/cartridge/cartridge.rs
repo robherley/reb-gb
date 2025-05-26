@@ -234,7 +234,7 @@ impl Cartridge {
     }
 }
 
-impl mmu::RW for Cartridge {
+impl mmu::Memory for Cartridge {
     fn read(&self, address: u16) -> u8 {
         self.rom[address as usize]
     }

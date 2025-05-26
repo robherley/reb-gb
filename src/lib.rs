@@ -14,6 +14,10 @@ pub mod cartridge {
 
 pub mod mmu {
     mod memory;
+    pub use memory::Mapper;
     pub use memory::Memory;
-    pub use memory::RW;
+    mod serial;
+    pub use serial::Serial;
+    mod timer;
+    pub use timer::Timer;
 }

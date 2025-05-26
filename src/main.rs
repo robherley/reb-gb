@@ -4,13 +4,18 @@ use reb_gb::{
 };
 
 fn main() {
+    // 04 - CE DE | Failed
+    // 09 - 88 89 8A 8B 8C 8D 8F 98 99 9A 9B 9C 9D 9F | Failed
+    // 11 - 8E 9E | Failed
     let rom = include_bytes!("../tmp/gb-test-roms/cpu_instrs/individual/02-interrupts.gb").to_vec();
     let cartridge = Cartridge::new(rom);
     pretty_print(&cartridge);
 
-    let mut cpu = CPU::new(Model::DMG, cartridge);
+    let mut cpu = CPU::new(Model::DEBUG, cartridge);
     cpu.debug_mode(true);
-    cpu.boot();
+    if let Err(err) = cpu.boot() {
+        panic!("Encounted fatal error: {}", err);
+    }
 }
 
 fn pretty_print(cart: &Cartridge) {

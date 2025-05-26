@@ -1,8 +1,8 @@
-use super::interrupts::Interrupts;
+use super::interrupts::{handler_address, Interrupts, TIMER};
 use super::registers::{Flags::*, Registers};
 use crate::cartridge::Cartridge;
 use crate::flags;
-use crate::mmu::Memory;
+use crate::mmu;
 
 #[derive(thiserror::Error, Debug, PartialEq, Eq)]
 pub enum Error {
@@ -10,21 +10,21 @@ pub enum Error {
     CPUNotSupported(Model),
     #[error("illegal instruction: {0:#04X}")]
     IllegalInstruction(u8),
+    #[error("invalid interrupt: {0:#04X}")]
+    InvalidInterrupt(u8),
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Model {
     /// Original Game Boy
     DMG,
-    /// Game Boy Pocket
-    MGB,
     /// For test ROM debugging
     DEBUG,
 }
 
 pub struct CPU {
     registers: Registers,
-    mmu: Memory,
+    mmu: mmu::Mapper,
     halted: bool,
     interrupts: Interrupts,
 }
@@ -33,7 +33,7 @@ impl CPU {
     pub fn new(model: Model, cartridge: Cartridge) -> CPU {
         CPU {
             registers: Registers::new(model, &cartridge),
-            mmu: Memory::new(cartridge),
+            mmu: mmu::Mapper::new(cartridge),
             halted: false,
             interrupts: Interrupts::default(),
         }
@@ -43,37 +43,55 @@ impl CPU {
         self.mmu.debug = enable;
     }
 
-    pub fn boot(&mut self) {
+    pub fn boot(&mut self) -> Result<(), Error> {
         loop {
             if self.mmu.debug {
                 self.debug();
             }
+            self.step()?;
+            if self.mmu.debug {
+                self.mmu.debug_serial();
+            }
+        }
+    }
 
-            self.interrupts.update();
+    /// Emulate a step of a CPU. Handles interrupts, execution of the next instruction or halts.
+    pub fn step(&mut self) -> Result<(), Error> {
+        self.interrupts.update();
 
-            if let Some((src, addr)) = self
-                .interrupts
-                .requested(self.mmu.ienable.value, self.mmu.iflag.value)
-            {
-                self.interrupt(src, addr);
+        if let Some(handler) =
+            self.interrupts
+                .requested(self.halted, self.mmu.ienable.value, self.mmu.iflag.value)
+        {
+            self.interrupt(handler)?;
+            self.ticks(16);
+            return Ok(());
+        }
+
+        if self.halted {
+            self.ticks(4);
+
+            // if we flagged an interrupt while halted, unhalt even if it wasn't handled
+            if self.mmu.iflag.value != 0 {
+                self.halted = false;
             }
 
-            if self.halted {
-                // TODO(robherley): cycle while halted
-                continue;
-            }
+            return Ok(());
+        }
 
-            match self.next() {
-                Ok(_cycles) => {
-                    // TODO(robherley): implement clocks
-                }
-                Err(err) => {
-                    eprintln!("crash: {:?}", err);
-                    return;
-                }
-            }
+        let t = self.next()?;
+        self.ticks(t);
 
-            self.mmu.debug_serial();
+        Ok(())
+    }
+
+    /// Moves internal clock n ticks forward.
+    fn ticks(&mut self, t: usize) {
+        self.mmu.timer.ticks(t);
+        // TODO(robherley): we're going to have more interrupts, may want to move this to MMU
+        if self.mmu.timer.interrupt {
+            self.mmu.iflag.value |= TIMER;
+            self.mmu.timer.interrupt = false;
         }
     }
 
@@ -98,17 +116,19 @@ impl CPU {
         );
     }
 
-    fn interrupt(&mut self, src: u8, addr: u16) {
+    fn interrupt(&mut self, handler: u8) -> Result<(), Error> {
         // 1. push program counter to stack
         self.push(self.registers.pc);
         // 2. set program counter to mapped interrupt address
-        self.registers.pc = addr;
+        self.registers.pc = handler_address(handler)?;
         // 3. clear interrupt flag for type
-        self.mmu.iflag.value &= !(src);
+        self.mmu.iflag.value &= !(handler);
         // 4. unhalt cpu
         self.halted = false;
         // 5. disable all interrupts
         self.interrupts.ime = false;
+
+        Ok(())
     }
 
     fn fetch8(&mut self) -> u8 {
@@ -126,7 +146,7 @@ impl CPU {
     /// Executes the next instruction and returns the number of t-cycles (system clock ticks) it took.
     /// https://gbdev.io/gb-opcodes/optables/
     fn next(&mut self) -> Result<usize, Error> {
-        let cycles = match self.fetch8() {
+        let ticks = match self.fetch8() {
             // NOP  | ----
             0x00 => 4,
             // LD BC, n16 | ----
@@ -214,7 +234,7 @@ impl CPU {
             }
             // STOP n8 | ----
             0x10 => {
-                // TODO(robherley): 2.7.2. Stop Mode
+                // 2.7.2. Stop Mode
                 // https://gbdev.io/pandocs/Reducing_Power_Consumption.html?highlight=stop#using-the-stop-instruction
                 // "No licensed rom makes use of STOP outside of CGB speed switching."
                 4
@@ -756,7 +776,7 @@ impl CPU {
             // HALT  | ----
             0x76 => {
                 self.halted = true;
-                1
+                4
             }
             // LD [HL], A | ----
             0x77 => {
@@ -1523,7 +1543,7 @@ impl CPU {
             }
         };
 
-        Ok(cycles)
+        Ok(ticks)
     }
 
     fn cb(&mut self) -> usize {

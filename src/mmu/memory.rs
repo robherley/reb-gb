@@ -1,3 +1,4 @@
+use super::{Serial, Timer};
 use crate::cartridge::Cartridge;
 
 // Fixed size of each memory region
@@ -8,37 +9,39 @@ const HRAM_SIZE: usize = 0x80;
 const WRAM_OFFSET: u16 = 0xC000;
 const HRAM_OFFSET: u16 = 0xFF80;
 
-pub trait RW {
+pub trait Memory {
     fn read(&self, address: u16) -> u8;
     fn write(&mut self, address: u16, value: u8);
 }
 
-pub struct Memory {
+pub struct Mapper {
     pub cartridge: Cartridge,
-    pub ienable: ByteRW,
-    pub iflag: ByteRW,
-    pub noop: NoopRW,
-    pub serial: SerialRW,
+    pub ienable: Byte,
+    pub iflag: Byte,
+    pub noop: Noop,
+    pub serial: Serial,
     pub wram: Ram,
     pub hram: Ram,
+    pub timer: Timer,
     pub debug: bool,
 
     // TODO(robherley): cleanup after test rom debugging
-    pub tmp_dummy_lcd: ByteRW,
+    pub tmp_dummy_lcd: Byte,
 }
 
-impl Memory {
+impl Mapper {
     pub fn new(cartridge: Cartridge) -> Self {
-        Memory {
+        Mapper {
             cartridge,
-            ienable: ByteRW::default(),
-            iflag: ByteRW::default(),
-            noop: NoopRW::new(false),
-            serial: SerialRW::default(),
+            ienable: Byte::default(),
+            iflag: Byte::default(),
+            noop: Noop::new(false),
+            serial: Serial::default(),
             wram: Ram::new(WRAM_SIZE, WRAM_OFFSET),
             hram: Ram::new(HRAM_SIZE, HRAM_OFFSET),
-            tmp_dummy_lcd: ByteRW::new(0x90, true),
+            timer: Timer::new(),
             debug: false,
+            tmp_dummy_lcd: Byte::new(0x90, true),
         }
     }
 
@@ -48,12 +51,13 @@ impl Memory {
         }
 
         if self.serial.control == 0x81 {
+            // TODO(robherley): implement serial callback
             eprint!("{}", self.serial.transfer as char);
             self.serial.control = 0x00;
         }
     }
 
-    pub fn map(&mut self, address: u16) -> &mut dyn RW {
+    pub fn map(&mut self, address: u16) -> &mut dyn Memory {
         if self.debug && address == 0xFF44 {
             return &mut self.tmp_dummy_lcd;
         }
@@ -83,7 +87,7 @@ impl Memory {
             // 0xFF01 - 0xFF02 : Serial transfer
             0xFF01..=0xFF02 => &mut self.serial,
             // 0xFF04 - 0xFF07 : Timer and divider
-            0xFF04..=0xFF07 => &mut self.noop, // TODO(robherley): implement timer div
+            0xFF04..=0xFF07 => &mut self.timer,
             // 0xFF0F : Interrupt flag register
             0xFF0F => &mut self.iflag,
             // 0xFF10 - 0xFF26 : Audio
@@ -133,27 +137,27 @@ impl Memory {
     }
 }
 
-pub struct ByteRW {
+pub struct Byte {
     pub value: u8,
     pub read_only: bool,
 }
 
-impl ByteRW {
+impl Byte {
     pub fn new(value: u8, read_only: bool) -> Self {
-        ByteRW { value, read_only }
+        Byte { value, read_only }
     }
 }
 
-impl Default for ByteRW {
+impl Default for Byte {
     fn default() -> Self {
-        ByteRW {
+        Byte {
             value: 0,
             read_only: false,
         }
     }
 }
 
-impl RW for ByteRW {
+impl Memory for Byte {
     fn read(&self, _address: u16) -> u8 {
         self.value
     }
@@ -166,17 +170,17 @@ impl RW for ByteRW {
     }
 }
 
-pub struct NoopRW {
+pub struct Noop {
     pub panic: bool,
 }
 
-impl NoopRW {
+impl Noop {
     pub fn new(panic: bool) -> Self {
-        NoopRW { panic }
+        Noop { panic }
     }
 }
 
-impl RW for NoopRW {
+impl Memory for Noop {
     fn read(&self, addr: u16) -> u8 {
         if self.panic {
             unimplemented!("noop serial read in panic mode: {:#06x}", addr);
@@ -195,38 +199,6 @@ impl RW for NoopRW {
     }
 }
 
-pub struct SerialRW {
-    pub transfer: u8,
-    pub control: u8,
-}
-
-impl Default for SerialRW {
-    fn default() -> Self {
-        SerialRW {
-            transfer: 0,
-            control: 0,
-        }
-    }
-}
-
-impl RW for SerialRW {
-    fn read(&self, address: u16) -> u8 {
-        match address {
-            0xFF01 => self.transfer,
-            0xFF02 => self.control,
-            _ => panic!("invalid serial read: {:#06x}", address),
-        }
-    }
-
-    fn write(&mut self, address: u16, value: u8) {
-        match address {
-            0xFF01 => self.transfer = value,
-            0xFF02 => self.control = value,
-            _ => panic!("invalid serial write: {:#06x}", address),
-        }
-    }
-}
-
 pub struct Ram {
     memory: Vec<u8>,
     offset: u16,
@@ -241,7 +213,7 @@ impl Ram {
     }
 }
 
-impl RW for Ram {
+impl Memory for Ram {
     fn read(&self, address: u16) -> u8 {
         self.memory[(address - self.offset) as usize]
     }

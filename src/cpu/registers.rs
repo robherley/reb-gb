@@ -93,7 +93,7 @@ impl Registers {
         registers.set_flag(Flags::Z, true);
 
         match model {
-            Model::DMG | Model::MGB => {
+            Model::DMG => {
                 // for DMG and MGB, the carry and half-carry flags are set if the checksum != 0
                 if cartridge.header_checksum() != 0x00 {
                     registers.set_flag(Flags::H, true);

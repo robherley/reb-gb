@@ -4,7 +4,7 @@ General Documentation:
 - http://www.codeslinger.co.uk/pages/projects/gameboy/files/GB.pdf (PDF in this directory)
 - https://maru-chang.com/hard/agb/english.htm
 - https://rylev.github.io/DMG-01/public/book/introduction.html
-
+- https://hacktix.github.io/GBEDG/
 
 Opcodes:
 - https://gbdev.io/gb-opcodes/optables/
@@ -21,6 +21,7 @@ Implementation Guides:
 Open Source Emulator Inspiration:
 - https://github.com/mvdnes/rboy/
 - http://www.devrs.com/gb/files/opcodes.html
+- https://github.com/mohanson/gameboy
 
 Debugging:
 - https://github.com/robert/gameboy-doctor
