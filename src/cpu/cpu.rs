@@ -2927,36 +2927,48 @@ impl CPU {
 
     // 8-bit add (LHS is always register A)
     fn add8(&mut self, value: u8) {
-        let result = self.registers.a.wrapping_add(value);
-        flags!(self.registers,
-          Z: result == 0,
-          N: false,
-          H: (self.registers.a & 0x0F) + (value & 0x0F) > 0x0F,
-          C: (self.registers.a as u16 + value as u16) > 0xFF
-        );
-        self.registers.a = result;
+        self.alu_add(value, 0);
     }
 
     // 8-bit add with carry (LHS is always register A)
     fn adc8(&mut self, value: u8) {
-        self.add8(value.wrapping_add(self.registers.flag(C) as u8));
+        self.alu_add(value, self.registers.flag(C) as u8);
     }
 
-    // 8-bit subtract (LHS is always register A)
-    fn sub8(&mut self, value: u8) {
-        let result = self.registers.a.wrapping_sub(value);
+    // arithmetic logic unit (ALU) addition, LHS is always register A
+    // optionally with carry
+    fn alu_add(&mut self, value: u8, carry: u8) {
+        let result = self.registers.a.wrapping_add(value).wrapping_add(carry);
         flags!(self.registers,
           Z: result == 0,
-          N: true,
-          H: (self.registers.a & 0x0F) < (value & 0x0F),
-          C: (self.registers.a as u16) < (value as u16)
+          N: false,
+          H: (self.registers.a & 0x0F) + (value & 0x0F) + carry > 0x0F,
+          C: (self.registers.a as u16 + value as u16 + carry as u16) > 0xFF
         );
         self.registers.a = result;
     }
 
+    // 8-bit subtract (LHS is always register A)
+    fn sub8(&mut self, value: u8) {
+        self.alu_sub(value, 0);
+    }
+
     // 8-bit subtract with carry (LHS is always register A)
     fn sbc8(&mut self, value: u8) {
-        self.sub8(value.wrapping_add(self.registers.flag(C) as u8));
+        self.alu_sub(value, self.registers.flag(C) as u8);
+    }
+
+    // arithmetic logic unit (ALU) subtraction, LHS is always register A
+    // optionally with carry
+    fn alu_sub(&mut self, value: u8, carry: u8) {
+        let result = self.registers.a.wrapping_sub(value).wrapping_sub(carry);
+        flags!(self.registers,
+          Z: result == 0,
+          N: true,
+          H: (self.registers.a & 0x0F) < (value & 0x0F) + carry,
+          C: (self.registers.a as u16) < (value as u16) + (carry as u16)
+        );
+        self.registers.a = result;
     }
 
     // 8-bit AND (LHS is always register A)
@@ -3369,6 +3381,21 @@ mod tests {
     }
 
     #[test]
+    fn test_adc8_wrapping() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.a = 0xFE;
+        flags!(cpu.registers, C: true);
+        cpu.adc8(0x01);
+        assert_eq!(cpu.registers.a, 0x00);
+        assert_flags!(cpu,
+          Z: true,
+          N: false,
+          H: true,
+          C: true
+        );
+    }
+
+    #[test]
     fn test_sub8() {
         let mut cpu = CPU::new(Model::DMG, Cartridge::default());
         cpu.registers.a = 0x01;
@@ -3422,6 +3449,21 @@ mod tests {
           N: true,
           H: false,
           C: false
+        );
+    }
+
+    #[test]
+    fn test_sbc8_wrapping() {
+        let mut cpu = CPU::new(Model::DMG, Cartridge::default());
+        cpu.registers.a = 0x01;
+        flags!(cpu.registers, C: true);
+        cpu.sbc8(0x01);
+        assert_eq!(cpu.registers.a, 0xFF);
+        assert_flags!(cpu,
+          Z: false,
+          N: true,
+          H: true,
+          C: true
         );
     }
 
