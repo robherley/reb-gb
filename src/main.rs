@@ -7,18 +7,16 @@ use reb_gb::{
 
 // TODO(robherley): tmp load rom at runtime so build in CI (where this rom might not exist) passes
 static ROM_DATA: LazyLock<Vec<u8>> = LazyLock::new(|| {
-    std::fs::read("tmp/gb-test-roms/cpu_instrs/individual/04-op r,imm.gb")
-        .expect("Failed to read ROM file")
+    std::fs::read("tmp/gb-test-roms/instr_timing/instr_timing.gb").expect("Failed to read ROM file")
 });
 
 fn main() {
-    // 09 - 88 89 8A 8B 8C 8D 8F 98 99 9A 9B 9C 9D 9F | Failed
     // 11 - 8E 9E | Failed
     let rom = ROM_DATA.clone();
     let cartridge = Cartridge::new(rom);
     pretty_print(&cartridge);
 
-    let mut cpu = CPU::new(Model::DEBUG, cartridge);
+    let mut cpu = CPU::new(Model::DMG, cartridge);
     cpu.debug_mode(true);
     if let Err(err) = cpu.boot() {
         panic!("Encounted fatal error: {}", err);

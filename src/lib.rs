@@ -1,23 +1,24 @@
-pub mod cpu {
-    mod cpu;
-    pub use cpu::*;
-    mod interrupts;
-    mod registers;
-}
+pub mod cartridge;
+pub mod cpu;
+mod interrupts;
+mod metadata;
+mod mmu;
+mod registers;
+mod serial;
+mod timer;
 
-pub mod cartridge {
-    mod cartridge;
-    pub use cartridge::*;
-    mod metadata;
-    pub use metadata::*;
-}
-
-pub mod mmu {
-    mod memory;
-    pub use memory::Mapper;
-    pub use memory::Memory;
-    mod serial;
-    pub use serial::Serial;
-    mod timer;
-    pub use timer::Timer;
+#[derive(thiserror::Error, Debug, PartialEq, Eq)]
+pub enum Error {
+    #[error("invalid cartridge kind: {0:#04x}")]
+    InvalidCartridgeKind(u8),
+    #[error("invalid old licensee code: {0:#04x}")]
+    InvalidOldLicenseeCode(u8),
+    #[error("invalid new licensee code: {0}{1}")]
+    InvalidNewLicenseeCode(char, char),
+    #[error("cpu not supported: {0:?}")]
+    CPUNotSupported(cpu::Model),
+    #[error("illegal instruction: {0:#04X}")]
+    IllegalInstruction(u8),
+    #[error("invalid interrupt: {0:#04X}")]
+    InvalidInterrupt(u8),
 }

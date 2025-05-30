@@ -1,4 +1,4 @@
-use super::Memory;
+use crate::mmu::Memory;
 
 pub struct Serial {
     pub transfer: u8,

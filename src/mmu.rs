@@ -1,5 +1,6 @@
-use super::{Serial, Timer};
 use crate::cartridge::Cartridge;
+use crate::serial::Serial;
+use crate::timer::Timer;
 
 // Fixed size of each memory region
 const WRAM_SIZE: usize = 0x2000;

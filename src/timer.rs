@@ -1,4 +1,4 @@
-use super::Memory;
+use crate::mmu::Memory;
 
 /// Timer (and divider) registers
 /// https://gbdev.io/pandocs/Timer_and_Divider_Registers.html

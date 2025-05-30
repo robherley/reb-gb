@@ -1,18 +1,9 @@
-use super::interrupts::{handler_address, Interrupts, TIMER};
-use super::registers::{Flags::*, Registers};
 use crate::cartridge::Cartridge;
 use crate::flags;
+use crate::interrupts::{handler_address, Interrupts, TIMER};
 use crate::mmu;
-
-#[derive(thiserror::Error, Debug, PartialEq, Eq)]
-pub enum Error {
-    #[error("cpu not supported: {0:?}")]
-    CPUNotSupported(Model),
-    #[error("illegal instruction: {0:#04X}")]
-    IllegalInstruction(u8),
-    #[error("invalid interrupt: {0:#04X}")]
-    InvalidInterrupt(u8),
-}
+use crate::registers::{Flags::*, Registers};
+use crate::Error;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Model {

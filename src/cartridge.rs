@@ -1,17 +1,7 @@
+use crate::metadata::Licensee;
 use crate::mmu;
+use crate::Error;
 use std::{convert::TryFrom, num::Wrapping};
-
-use super::metadata::Licensee;
-
-#[derive(thiserror::Error, Debug, PartialEq, Eq)]
-pub enum Error {
-    #[error("invalid cartridge kind: {0:#04x}")]
-    InvalidCartridgeKind(u8),
-    #[error("invalid old licensee code: {0:#04x}")]
-    InvalidOldLicenseeCode(u8),
-    #[error("invalid new licensee code: {0}{1}")]
-    InvalidNewLicenseeCode(char, char),
-}
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Kind {
@@ -256,7 +246,7 @@ impl Default for Cartridge {
 mod tests {
     use super::*;
 
-    const CPU_INSTRS_ROM: &[u8; 65536] = include_bytes!("../../tests/fixtures/cpu_instrs.gb");
+    const CPU_INSTRS_ROM: &[u8; 65536] = include_bytes!("../tests/fixtures/cpu_instrs.gb");
 
     #[test]
     fn test_attributes() {
