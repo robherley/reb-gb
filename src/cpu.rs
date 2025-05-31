@@ -78,6 +78,7 @@ impl CPU {
 
     /// Moves internal clock n ticks forward.
     fn ticks(&mut self, t: usize) {
+        println!("TICKS: {}", t);
         self.mmu.timer.ticks(t);
         // TODO(robherley): we're going to have more interrupts, may want to move this to MMU
         if self.mmu.timer.interrupt {
@@ -89,7 +90,7 @@ impl CPU {
     fn debug(&mut self) {
         // https://github.com/robert/gameboy-doctor
         println!(
-            "A:{:02X} F:{:02X} B:{:02X} C:{:02X} D:{:02X} E:{:02X} H:{:02X} L:{:02X} SP:{:04X} PC:{:04X} PCMEM:{:02X},{:02X},{:02X},{:02X}",
+            "A:{:02X} F:{:02X} B:{:02X} C:{:02X} D:{:02X} E:{:02X} H:{:02X} L:{:02X} SP:{:04X} PC:{:04X} PCMEM:{:02X},{:02X},{:02X},{:02X} HALTED:{} | DIV: {:02X} TIMA: {:02X} TMA: {:02X} TAC: {:02X}",
             self.registers.a,
             self.registers.f,
             self.registers.b,
@@ -104,6 +105,11 @@ impl CPU {
             self.mmu.read8(self.registers.pc.wrapping_add(1)),
             self.mmu.read8(self.registers.pc.wrapping_add(2)),
             self.mmu.read8(self.registers.pc.wrapping_add(3)),
+            self.halted,
+            self.mmu.read8(0xFF04),
+            self.mmu.read8(0xFF05),
+            self.mmu.read8(0xFF06),
+            self.mmu.read8(0xFF07),
         );
     }
 
@@ -193,7 +199,7 @@ impl CPU {
             // LD A, [BC] | ----
             0x0A => {
                 self.registers.a = self.mmu.read8(self.registers.bc());
-                4
+                8
             }
             // DEC BC | ----
             0x0B => {
@@ -272,7 +278,7 @@ impl CPU {
             // JR e8 | ----
             0x18 => {
                 self.jr(true);
-                8
+                12
             }
             // ADD HL, DE | -0HC
             0x19 => {
@@ -282,7 +288,7 @@ impl CPU {
             // LD A, [DE] | ----
             0x1A => {
                 self.registers.a = self.mmu.read8(self.registers.de());
-                4
+                8
             }
             // DEC DE | ----
             0x1B => {
@@ -1878,330 +1884,330 @@ impl CPU {
             // BIT 0, B | Z01-
             0x40 => {
                 self.bit(0, self.registers.b);
-                4
+                8
             }
             // BIT 0, C | Z01-
             0x41 => {
                 self.bit(0, self.registers.c);
-                4
+                8
             }
             // BIT 0, D | Z01-
             0x42 => {
                 self.bit(0, self.registers.d);
-                4
+                8
             }
             // BIT 0, E | Z01-
             0x43 => {
                 self.bit(0, self.registers.e);
-                4
+                8
             }
             // BIT 0, H | Z01-
             0x44 => {
                 self.bit(0, self.registers.h);
-                4
+                8
             }
             // BIT 0, L | Z01-
             0x45 => {
                 self.bit(0, self.registers.l);
-                4
+                8
             }
             // BIT 0, (HL) | Z01-
             0x46 => {
                 let value = self.mmu.read8(self.registers.hl());
                 self.bit(0, value);
-                8
+                12
             }
             // BIT 0, A | Z01-
             0x47 => {
                 self.bit(0, self.registers.a);
-                4
+                8
             }
             // BIT 1, B | Z01-
             0x48 => {
                 self.bit(1, self.registers.b);
-                4
+                8
             }
             // BIT 1, C | Z01-
             0x49 => {
                 self.bit(1, self.registers.c);
-                4
+                8
             }
             // BIT 1, D | Z01-
             0x4A => {
                 self.bit(1, self.registers.d);
-                4
+                8
             }
             // BIT 1, E | Z01-
             0x4B => {
                 self.bit(1, self.registers.e);
-                4
+                8
             }
             // BIT 1, H | Z01-
             0x4C => {
                 self.bit(1, self.registers.h);
-                4
+                8
             }
             // BIT 1, L | Z01-
             0x4D => {
                 self.bit(1, self.registers.l);
-                4
+                8
             }
             // BIT 1, (HL) | Z01-
             0x4E => {
                 let value = self.mmu.read8(self.registers.hl());
                 self.bit(1, value);
-                8
+                12
             }
             // BIT 1, A | Z01-
             0x4F => {
                 self.bit(1, self.registers.a);
-                4
+                8
             }
             // BIT 2, B | Z01-
             0x50 => {
                 self.bit(2, self.registers.b);
-                4
+                8
             }
             // BIT 2, C | Z01-
             0x51 => {
                 self.bit(2, self.registers.c);
-                4
+                8
             }
             // BIT 2, D | Z01-
             0x52 => {
                 self.bit(2, self.registers.d);
-                4
+                8
             }
             // BIT 2, E | Z01-
             0x53 => {
                 self.bit(2, self.registers.e);
-                4
+                8
             }
             // BIT 2, H | Z01-
             0x54 => {
                 self.bit(2, self.registers.h);
-                4
+                8
             }
             // BIT 2, L | Z01-
             0x55 => {
                 self.bit(2, self.registers.l);
-                4
+                8
             }
             // BIT 2, (HL) | Z01-
             0x56 => {
                 let value = self.mmu.read8(self.registers.hl());
                 self.bit(2, value);
-                8
+                12
             }
             // BIT 2, A | Z01-
             0x57 => {
                 self.bit(2, self.registers.a);
-                4
+                8
             }
             // BIT 3, B | Z01-
             0x58 => {
                 self.bit(3, self.registers.b);
-                4
+                8
             }
             // BIT 3, C | Z01-
             0x59 => {
                 self.bit(3, self.registers.c);
-                4
+                8
             }
             // BIT 3, D | Z01-
             0x5A => {
                 self.bit(3, self.registers.d);
-                4
+                8
             }
             // BIT 3, E | Z01-
             0x5B => {
                 self.bit(3, self.registers.e);
-                4
+                8
             }
             // BIT 3, H | Z01-
             0x5C => {
                 self.bit(3, self.registers.h);
-                4
+                8
             }
             // BIT 3, L | Z01-
             0x5D => {
                 self.bit(3, self.registers.l);
-                4
+                8
             }
             // BIT 3, (HL) | Z01-
             0x5E => {
                 let value = self.mmu.read8(self.registers.hl());
                 self.bit(3, value);
-                8
+                12
             }
             // BIT 3, A | Z01-
             0x5F => {
                 self.bit(3, self.registers.a);
-                4
+                8
             }
             // BIT 4, B | Z01-
             0x60 => {
                 self.bit(4, self.registers.b);
-                4
+                8
             }
             // BIT 4, C | Z01-
             0x61 => {
                 self.bit(4, self.registers.c);
-                4
+                8
             }
             // BIT 4, D | Z01-
             0x62 => {
                 self.bit(4, self.registers.d);
-                4
+                8
             }
             // BIT 4, E | Z01-
             0x63 => {
                 self.bit(4, self.registers.e);
-                4
+                8
             }
             // BIT 4, H | Z01-
             0x64 => {
                 self.bit(4, self.registers.h);
-                4
+                8
             }
             // BIT 4, L | Z01-
             0x65 => {
                 self.bit(4, self.registers.l);
-                4
+                8
             }
             // BIT 4, (HL) | Z01-
             0x66 => {
                 let value = self.mmu.read8(self.registers.hl());
                 self.bit(4, value);
-                8
+                12
             }
             // BIT 4, A | Z01-
             0x67 => {
                 self.bit(4, self.registers.a);
-                4
+                8
             }
             // BIT 5, B | Z01-
             0x68 => {
                 self.bit(5, self.registers.b);
-                4
+                8
             }
             // BIT 5, C | Z01-
             0x69 => {
                 self.bit(5, self.registers.c);
-                4
+                8
             }
             // BIT 5, D | Z01-
             0x6A => {
                 self.bit(5, self.registers.d);
-                4
+                8
             }
             // BIT 5, E | Z01-
             0x6B => {
                 self.bit(5, self.registers.e);
-                4
+                8
             }
             // BIT 5, H | Z01-
             0x6C => {
                 self.bit(5, self.registers.h);
-                4
+                8
             }
             // BIT 5, L | Z01-
             0x6D => {
                 self.bit(5, self.registers.l);
-                4
+                8
             }
             // BIT 5, (HL) | Z01-
             0x6E => {
                 let value = self.mmu.read8(self.registers.hl());
                 self.bit(5, value);
-                8
+                12
             }
             // BIT 5, A | Z01-
             0x6F => {
                 self.bit(5, self.registers.a);
-                4
+                8
             }
             // BIT 6, B | Z01-
             0x70 => {
                 self.bit(6, self.registers.b);
-                4
+                8
             }
             // BIT 6, C | Z01-
             0x71 => {
                 self.bit(6, self.registers.c);
-                4
+                8
             }
             // BIT 6, D | Z01-
             0x72 => {
                 self.bit(6, self.registers.d);
-                4
+                8
             }
             // BIT 6, E | Z01-
             0x73 => {
                 self.bit(6, self.registers.e);
-                4
+                8
             }
             // BIT 6, H | Z01-
             0x74 => {
                 self.bit(6, self.registers.h);
-                4
+                8
             }
             // BIT 6, L | Z01-
             0x75 => {
                 self.bit(6, self.registers.l);
-                4
+                8
             }
             // BIT 6, (HL) | Z01-
             0x76 => {
                 let value = self.mmu.read8(self.registers.hl());
                 self.bit(6, value);
-                8
+                12
             }
             // BIT 6, A | Z01-
             0x77 => {
                 self.bit(6, self.registers.a);
-                4
+                8
             }
             // BIT 7, B | Z01-
             0x78 => {
                 self.bit(7, self.registers.b);
-                4
+                8
             }
             // BIT 7, C | Z01-
             0x79 => {
                 self.bit(7, self.registers.c);
-                4
+                8
             }
             // BIT 7, D | Z01-
             0x7A => {
                 self.bit(7, self.registers.d);
-                4
+                8
             }
             // BIT 7, E | Z01-
             0x7B => {
                 self.bit(7, self.registers.e);
-                4
+                8
             }
             // BIT 7, H | Z01-
             0x7C => {
                 self.bit(7, self.registers.h);
-                4
+                8
             }
             // BIT 7, L | Z01-
             0x7D => {
                 self.bit(7, self.registers.l);
-                4
+                8
             }
             // BIT 7, (HL) | Z01-
             0x7E => {
                 let value = self.mmu.read8(self.registers.hl());
                 self.bit(7, value);
-                8
+                12
             }
             // BIT 7, A | Z01-
             0x7F => {
                 self.bit(7, self.registers.a);
-                4
+                8
             }
             // RES 0, B | ----
             0x80 => {
