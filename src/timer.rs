@@ -67,7 +67,7 @@ impl Timer {
     }
 
     fn read_tac(&self) -> u8 {
-        let mut value = 0b1111_0000;
+        let mut value = 0b1111_1000;
         if self.tima.enabled {
             value |= 0b0100;
         }
@@ -138,6 +138,7 @@ impl Counter {
                 return true;
             }
         }
-        return false;
+
+        false
     }
 }
