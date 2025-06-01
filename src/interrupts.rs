@@ -71,11 +71,7 @@ impl Interrupts {
     }
 
     /// Returns the first interrupt handler address that is enabled (IE) and requested (IF).
-    pub fn requested(&self, halted: bool, ienable: u8, iflag: u8) -> Option<u8> {
-        if !self.ime && !halted {
-            return None;
-        }
-
+    pub fn requested(&self, ienable: u8, iflag: u8) -> Option<u8> {
         for handler in HANDLERS {
             // check if the interrupt is enabled
             if (ienable & handler) == 0 {
@@ -254,163 +250,78 @@ mod tests {
     }
 
     #[test]
-    fn test_requested_ime_disabled_not_halted() {
-        let interrupts = Interrupts::default();
-        let result = interrupts.requested(false, VBLANK, VBLANK);
-        assert_eq!(result, None);
-    }
-
-    #[test]
-    fn test_requested_ime_enabled() {
+    fn test_requested() {
         let mut interrupts = Interrupts::default();
         interrupts.ime = true;
 
-        let result = interrupts.requested(false, VBLANK, VBLANK);
+        let result = interrupts.requested(VBLANK, VBLANK);
         assert_eq!(result, Some(VBLANK));
 
-        let result = interrupts.requested(false, LCD_STAT, LCD_STAT);
+        let result = interrupts.requested(LCD_STAT, LCD_STAT);
         assert_eq!(result, Some(LCD_STAT));
     }
 
     #[test]
-    fn test_requested_halted() {
-        let interrupts = Interrupts::default();
-        let result = interrupts.requested(true, TIMER, TIMER);
-        assert_eq!(result, Some(TIMER));
-    }
-
-    #[test]
-    fn test_requested_halted_ime_enabled() {
-        let mut interrupts = Interrupts::default();
-        interrupts.ime = true;
-        let result = interrupts.requested(true, TIMER, TIMER);
-        assert_eq!(result, Some(TIMER));
-    }
-
-    #[test]
-    fn test_requested_interrupt_not_enabled() {
-        let mut interrupts = Interrupts::default();
-        interrupts.ime = true;
-
-        let result = interrupts.requested(false, 0x00, VBLANK);
-        assert_eq!(result, None);
-    }
-
-    #[test]
-    fn test_requested_interrupt_not_flagged() {
-        let mut interrupts = Interrupts::default();
-        interrupts.ime = true;
-
-        let result = interrupts.requested(false, VBLANK, 0x00);
-        assert_eq!(result, None);
-    }
-
-    #[test]
     fn test_requested_partial_match() {
-        let mut interrupts = Interrupts::default();
-        interrupts.ime = true;
+        let interrupts = Interrupts::default();
 
         // Enable VBLANK and LCD_STAT, but only flag VBLANK
-        let result = interrupts.requested(false, VBLANK | LCD_STAT, VBLANK);
+        let result = interrupts.requested(VBLANK | LCD_STAT, VBLANK);
         assert_eq!(result, Some(VBLANK));
 
         // Enable VBLANK and LCD_STAT, but only flag LCD_STAT
-        let result = interrupts.requested(false, VBLANK | LCD_STAT, LCD_STAT);
+        let result = interrupts.requested(VBLANK | LCD_STAT, LCD_STAT);
         assert_eq!(result, Some(LCD_STAT));
     }
 
     #[test]
     fn test_requested_priority_order() {
-        let mut interrupts = Interrupts::default();
-        interrupts.ime = true;
+        let interrupts = Interrupts::default();
 
         // Multiple interrupts enabled and flagged - should return VBLANK (highest priority)
         let ienable = VBLANK | LCD_STAT | TIMER;
         let iflag = VBLANK | LCD_STAT | TIMER;
-        let result = interrupts.requested(false, ienable, iflag);
+        let result = interrupts.requested(ienable, iflag);
         assert_eq!(result, Some(VBLANK));
 
         // Only lower priority interrupts
         let ienable = LCD_STAT | TIMER | JOYPAD;
         let iflag = LCD_STAT | TIMER | JOYPAD;
-        let result = interrupts.requested(false, ienable, iflag);
+        let result = interrupts.requested(ienable, iflag);
         assert_eq!(result, Some(LCD_STAT));
 
         // Test individual priorities
-        let result = interrupts.requested(false, TIMER | JOYPAD, TIMER | JOYPAD);
+        let result = interrupts.requested(TIMER | JOYPAD, TIMER | JOYPAD);
         assert_eq!(result, Some(TIMER));
 
-        let result = interrupts.requested(false, SERIAL | JOYPAD, SERIAL | JOYPAD);
+        let result = interrupts.requested(SERIAL | JOYPAD, SERIAL | JOYPAD);
         assert_eq!(result, Some(SERIAL));
 
-        let result = interrupts.requested(false, JOYPAD, JOYPAD);
+        let result = interrupts.requested(JOYPAD, JOYPAD);
         assert_eq!(result, Some(JOYPAD));
     }
 
     #[test]
     fn test_requested_all_interrupts_at_once() {
-        let mut interrupts = Interrupts::default();
-        interrupts.ime = true;
-
+        let interrupts = Interrupts::default();
         let all_interrupts = VBLANK | LCD_STAT | TIMER | SERIAL | JOYPAD;
-        let result = interrupts.requested(false, all_interrupts, all_interrupts);
+        let result = interrupts.requested(all_interrupts, all_interrupts);
         assert_eq!(result, Some(VBLANK));
     }
 
     #[test]
     fn test_requested_no_interrupts() {
-        let mut interrupts = Interrupts::default();
-        interrupts.ime = true;
+        let interrupts = Interrupts::default();
 
-        let result = interrupts.requested(false, 0x00, 0x00);
+        let result = interrupts.requested(0x00, 0x00);
         assert_eq!(result, None);
     }
 
     #[test]
     fn test_requested_unknown_interrupt_bits() {
-        let mut interrupts = Interrupts::default();
-        interrupts.ime = true;
+        let interrupts = Interrupts::default();
 
-        let result = interrupts.requested(false, 0b1110_0000, 0b1110_0000);
+        let result = interrupts.requested(0b1110_0000, 0b1110_0000);
         assert_eq!(result, None);
-    }
-
-    #[test]
-    fn test_complex_interrupt_scenario() {
-        let mut interrupts = Interrupts::default();
-
-        // Start with IME disabled
-        assert!(!interrupts.ime);
-
-        // Enable interrupts with delay
-        interrupts.enable(false);
-
-        // Should not trigger yet
-        let result = interrupts.requested(false, VBLANK, VBLANK);
-        assert_eq!(result, None);
-
-        // Update once - still delayed
-        interrupts.update();
-        let result = interrupts.requested(false, VBLANK, VBLANK);
-        assert_eq!(result, None);
-
-        // Update again - now enabled
-        interrupts.update();
-        assert!(interrupts.ime);
-        let result = interrupts.requested(false, VBLANK, VBLANK);
-        assert_eq!(result, Some(VBLANK));
-
-        // Disable interrupts
-        interrupts.disable();
-        interrupts.update();
-        interrupts.update();
-
-        // Should not trigger anymore
-        let result = interrupts.requested(false, VBLANK, VBLANK);
-        assert_eq!(result, None);
-
-        // But should still work when halted
-        let result = interrupts.requested(true, VBLANK, VBLANK);
-        assert_eq!(result, Some(VBLANK));
     }
 }

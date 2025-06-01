@@ -39,7 +39,8 @@ impl CPU {
             if self.mmu.debug {
                 self.debug();
             }
-            self.step()?;
+            let ticks = self.step()?;
+            self.ticks(ticks);
             if self.mmu.debug {
                 self.mmu.debug_serial();
             }
@@ -47,33 +48,18 @@ impl CPU {
     }
 
     /// Emulate a step of a CPU. Handles interrupts, execution of the next instruction or halts.
-    pub fn step(&mut self) -> Result<(), Error> {
+    /// Returns the number of ticks (t-states) it took to execute.
+    pub fn step(&mut self) -> Result<usize, Error> {
         self.interrupts.update();
-
-        if let Some(handler) =
-            self.interrupts
-                .requested(self.halted, self.mmu.ienable.value, self.mmu.iflag.value)
-        {
-            self.interrupt(handler)?;
-            self.ticks(16);
-            return Ok(());
+        if let Some(ticks) = self.interrupt()? {
+            return Ok(ticks);
         }
 
         if self.halted {
-            self.ticks(4);
-
-            // if we flagged an interrupt while halted, unhalt even if it wasn't handled
-            if self.mmu.iflag.value != 0 {
-                self.halted = false;
-            }
-
-            return Ok(());
+            return Ok(4);
         }
 
-        let t = self.next()?;
-        self.ticks(t);
-
-        Ok(())
+        Ok(self.next()?)
     }
 
     /// Moves internal clock n ticks forward.
@@ -113,19 +99,37 @@ impl CPU {
         );
     }
 
-    fn interrupt(&mut self, handler: u8) -> Result<(), Error> {
-        // 1. push program counter to stack
-        self.push(self.registers.pc);
-        // 2. set program counter to mapped interrupt address
-        self.registers.pc = handler_address(handler)?;
-        // 3. clear interrupt flag for type
-        self.mmu.iflag.value &= !(handler);
-        // 4. unhalt cpu
+    /// Checks if interrupts are enabled, requested and handles them if so. Returns the number of ticks taken to handle
+    /// the interrupt, or None if no interrupt was handled.
+    fn interrupt(&mut self) -> Result<Option<usize>, Error> {
+        if !self.interrupts.ime && !self.halted {
+            return Ok(None);
+        }
+
+        let handler = match self
+            .interrupts
+            .requested(self.mmu.ienable.value, self.mmu.iflag.value)
+        {
+            Some(handler) => handler,
+            None => return Ok(None),
+        };
+
+        // 1. interrupt was triggered, unhalt always
         self.halted = false;
-        // 5. disable all interrupts
+        // 2. if IME is false, do not handle interrupt
+        if !self.interrupts.ime {
+            return Ok(None);
+        }
+        // 3. push program counter to stack
+        self.push(self.registers.pc);
+        // 4. set program counter to mapped interrupt address
+        self.registers.pc = handler_address(handler)?;
+        // 5. clear interrupt flag for type
+        self.mmu.iflag.value &= !(handler);
+        // 6. disable all interrupts
         self.interrupts.ime = false;
 
-        Ok(())
+        Ok(Some(16))
     }
 
     fn fetch8(&mut self) -> u8 {

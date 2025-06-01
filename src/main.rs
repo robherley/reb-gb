@@ -7,7 +7,7 @@ use reb_gb::{
 
 // TODO(robherley): tmp load rom at runtime so build in CI (where this rom might not exist) passes
 static ROM_DATA: LazyLock<Vec<u8>> = LazyLock::new(|| {
-    std::fs::read("tmp/gb-test-roms/instr_timing/instr_timing.gb").expect("Failed to read ROM file")
+    std::fs::read("tests/fixtures/cpu_instrs.gb").expect("Failed to read ROM file")
 });
 
 fn main() {
